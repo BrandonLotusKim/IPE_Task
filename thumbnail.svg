@@ -1,4 +1,4 @@
-﻿<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="bg" x1="120" y1="40" x2="1060" y2="590" gradientUnits="userSpaceOnUse">
       <stop stop-color="#C79A67"/>
@@ -32,7 +32,7 @@
   <text x="220" y="178" fill="#F1D58B" font-size="28" font-family="Pretendard, Noto Sans KR, sans-serif" font-weight="800" letter-spacing="8">MNEMONIC QUIZ</text>
   <text x="220" y="274" fill="#F8FBF5" font-size="68" font-family="Pretendard, Noto Sans KR, sans-serif" font-weight="900">정보처리기사</text>
   <text x="220" y="352" fill="#F8FBF5" font-size="68" font-family="Pretendard, Noto Sans KR, sans-serif" font-weight="900">두음 퀴즈</text>
-  <text x="222" y="420" fill="#E4EEE0" fill-opacity="0.88" font-size="28" font-family="Pretendard, Noto Sans KR, sans-serif" font-weight="600">과목 선택부터 채점 결과, 전체 답안지까지 한 번에 정리하는 암기 퀴즈</text>
+  <text x="222" y="420" fill="#E4EEE0" fill-opacity="0.88" font-size="28" font-family="Pretendard, Noto Sans KR, sans-serif" font-weight="600">과목 선택부터 채점 결과, 전체 답안지까지 한 번에 정리하는 퀴즈</text>
 
   <rect x="220" y="454" width="310" height="54" rx="27" fill="#F1D58B" fill-opacity="0.14" stroke="#F1D58B" stroke-opacity="0.24"/>
   <text x="252" y="489" fill="#F1D58B" font-size="24" font-family="Pretendard, Noto Sans KR, sans-serif" font-weight="800">1~12과목 두음 정리</text>
