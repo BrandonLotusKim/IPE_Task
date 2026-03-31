@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>정보처리기사 두음 퀴즈</title>
+  <style>
+    :root {
+      --wood-1: #ba8a58;
+      --wood-2: #7b532f;
+      --board-1: #234234;
+      --board-2: #162a20;
+      --chalk: #edf5e9;
+      --chalk-soft: rgba(237, 245, 233, 0.72);
+      --accent: #f3d17c;
+      --line: rgba(237, 245, 233, 0.12);
+      --panel: rgba(18, 53, 39, 0.88);
+      --ok-bg: rgba(54, 119, 80, 0.94);
+      --ok-tx: #ddffe8;
+      --ng-bg: rgba(128, 59, 52, 0.94);
+      --ng-tx: #ffe4dd;
+      --board-min-height: 840px;
+      --quiz-min-height: 840px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+      color: var(--chalk);
+      background:
+        radial-gradient(circle at top, rgba(255, 223, 154, 0.18), transparent 24%),
+        linear-gradient(180deg, #c09562 0%, #946a42 20%, #6d4c2f 100%);
+    }
+    .frame {
+      width: min(1020px, 100%);
+      min-height: var(--board-min-height);
+      border: 14px solid var(--wood-2);
+      border-radius: 30px;
+      background:
+        linear-gradient(160deg, rgba(255,255,255,0.05), transparent 30%),
+        linear-gradient(180deg, var(--board-1), var(--board-2));
+      box-shadow:
+        inset 0 0 0 3px rgba(67, 41, 20, 0.55),
+        inset 0 0 120px rgba(255,255,255,0.03),
+        0 28px 60px rgba(12, 18, 15, 0.36);
+      position: relative;
+    }
+    .frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255,255,255,0.05), transparent 18%),
+        radial-gradient(circle at 84% 20%, rgba(255,255,255,0.04), transparent 16%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.016) 0 2px, transparent 2px 54px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.01) 0 3px, transparent 3px 62px);
+      pointer-events: none;
+    }
+    .screen {
+      position: relative;
+      z-index: 1;
+      min-height: var(--board-min-height);
+      padding: 40px;
+    }
+    .start-screen {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding-top: 10px;
+      padding-bottom: 30px;
+    }
+    .hidden { display: none; }
+    .result-box.hidden {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+    }
+    .hero {
+      min-height: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      text-align: left;
+      gap: 22px;
+    }
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.24em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(36px, 5vw, 58px);
+      line-height: 1.06;
+      letter-spacing: -0.05em;
+    }
+    .lead {
+      max-width: 700px;
+      margin: 0 0 8px;
+      color: var(--chalk-soft);
+      font-size: 18px;
+      line-height: 1.8;
+    }
+    .subject-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 18px;
+      align-content: start;
+      justify-content: stretch;
+      width: 100%;
+      margin: 0;
+    }
+    .hero > * {
+      width: 100%;
+      text-align: left;
+    }
+    .subject-card, .panel, .result-box {
+      border-radius: 26px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015)),
+        var(--panel);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .subject-card {
+      position: relative;
+      padding: 40px 72px 40px 28px;
+      text-align: left;
+      color: var(--chalk);
+      cursor: pointer;
+      transition: transform .16s ease, border-color .16s ease;
+    }
+    .subject-card::after {
+      content: ">";
+      position: absolute;
+      top: 50%;
+      right: 28px;
+      transform: translateY(-50%);
+      color: rgba(243, 209, 124, 0.88);
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1;
+      opacity: 0.9;
+      transition: transform .16s ease, opacity .16s ease;
+    }
+    .subject-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(243, 209, 124, 0.34);
+    }
+    .subject-card:hover::after {
+      transform: translateY(-50%) translateX(4px);
+      opacity: 1;
+    }
+    .subject-card strong {
+      display: block;
+      margin-bottom: 14px;
+      font-size: 32px;
+      color: var(--accent);
+    }
+    .subject-card span {
+      display: block;
+      color: var(--chalk-soft);
+      font-size: 17px;
+      line-height: 1.85;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      align-items: flex-start;
+    }
+    .topbar h2 {
+      margin: 0 0 6px;
+      font-size: clamp(26px, 4vw, 40px);
+      color: var(--accent);
+      letter-spacing: -0.04em;
+    }
+    .topbar p {
+      margin: 0;
+      color: var(--chalk-soft);
+      font-size: 17px;
+    }
+    .topbar-actions {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      padding: 11px 16px;
+      border-radius: 999px;
+      background: rgba(243, 209, 124, 0.1);
+      border: 1px solid rgba(243, 209, 124, 0.18);
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .quiz-layout {
+      display: grid;
+      gap: 18px;
+    }
+    #quiz-screen {
+      position: relative;
+      min-height: var(--quiz-min-height);
+      padding-bottom: 132px;
+    }
+    #quiz-screen.hidden { display: none; }
+    .result-box.hidden {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+    }
+    .panel { padding: 30px; }
+    .question-label {
+      margin: 0 0 16px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .question-text {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 44px);
+      line-height: 1.32;
+      letter-spacing: -0.04em;
+    }
+    .input-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .answer-input {
+      flex: 1 1 320px;
+      min-width: 0;
+      padding: 17px 20px;
+      border-radius: 18px;
+      border: 1px solid rgba(237, 245, 233, 0.18);
+      background: rgba(7, 24, 17, 0.52);
+      color: var(--chalk);
+      font-size: 20px;
+      font-weight: 800;
+      outline: none;
+    }
+    .answer-input::placeholder { color: rgba(237, 245, 233, 0.38); }
+    .answer-input:focus {
+      border-color: rgba(243, 209, 124, 0.55);
+      box-shadow: 0 0 0 5px rgba(243, 209, 124, 0.08);
+    }
+    .answer-input.attention {
+      animation: answerBlink .72s ease 3;
+      border-color: rgba(243, 209, 124, 0.92);
+      box-shadow: 0 0 0 7px rgba(243, 209, 124, 0.18), 0 0 28px rgba(243, 209, 124, 0.24);
+    }
+    @keyframes answerBlink {
+      0%, 100% {
+        border-color: rgba(237, 245, 233, 0.18);
+        box-shadow: none;
+      }
+      50% {
+        border-color: rgba(243, 209, 124, 0.96);
+        box-shadow: 0 0 0 8px rgba(243, 209, 124, 0.2), 0 0 32px rgba(243, 209, 124, 0.28);
+      }
+    }
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      border: 0;
+      border-radius: 18px;
+      padding: 14px 18px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      transition: transform .16s ease, opacity .16s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+    .primary {
+      background: linear-gradient(180deg, #f2d47d 0%, #d2a94d 100%);
+      color: #2d2210;
+    }
+    .primary.is-next {
+      background: linear-gradient(180deg, #d9f29b 0%, #9cc458 100%);
+      color: #20300f;
+      box-shadow: 0 10px 22px rgba(103, 145, 42, 0.22);
+    }
+    .secondary {
+      background: rgba(237, 245, 233, 0.08);
+      color: var(--chalk);
+      border: 1px solid rgba(237, 245, 233, 0.12);
+    }
+    .ghost {
+      background: rgba(243, 209, 124, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(243, 209, 124, 0.18);
+    }
+    .result-box {
+      position: relative;
+      min-height: 260px;
+      padding: 24px 26px;
+      border-radius: 26px;
+      border: 1px solid var(--line);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+      transition: opacity .16s ease;
+    }
+    .result-box.hidden {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+    }
+    .result-box.hidden > * {
+      opacity: 0;
+    }
+    .result-box.success {
+      background: linear-gradient(180deg, rgba(84, 158, 109, 0.24), var(--ok-bg));
+      border-color: rgba(221, 255, 232, 0.2);
+    }
+    .result-box.error {
+      background: linear-gradient(180deg, rgba(177, 91, 79, 0.22), var(--ng-bg));
+      border-color: rgba(255, 228, 220, 0.18);
+    }
+    .result-title {
+      margin: 0 0 10px;
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+    .result-box.success .result-title { color: var(--ok-tx); }
+    .result-box.error .result-title { color: var(--ng-tx); }
+    .result-text {
+      margin: 0;
+      white-space: pre-line;
+      font-size: 18px;
+      line-height: 1.95;
+      font-weight: 800;
+      color: #fffef8;
+    }
+    .result-actions { margin-top: 18px; }
+    .quiz-nav {
+      position: absolute;
+      left: 40px;
+      right: 40px;
+      bottom: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 18px;
+      pointer-events: none;
+    }
+    .nav-button {
+      min-width: 134px;
+      border-radius: 999px;
+      padding: 16px 24px;
+      background: rgba(237, 245, 233, 0.08);
+      color: var(--chalk);
+      border: 1px solid rgba(237, 245, 233, 0.14);
+      box-shadow: 0 10px 24px rgba(6, 17, 13, 0.18);
+      pointer-events: auto;
+    }
+    @media (max-width: 720px) {
+      body { padding: 12px; }
+      .frame {
+        min-height: auto;
+        border-width: 10px;
+      }
+      .screen {
+        min-height: auto;
+        padding: 22px;
+      }
+      .hero { min-height: auto; }
+      .hero > * {
+      width: 100%;
+      text-align: left;
+    }
+    .subject-card, .panel, .result-box { border-radius: 22px; }
+      .input-wrap { flex-direction: column; }
+      .button-row, .topbar-actions { width: 100%; }
+      .button-row button, .topbar-actions button, .input-wrap .primary { width: 100%; }
+      .result-box {
+        min-height: 280px;
+        padding: 20px 18px;
+      }
+      .quiz-nav {
+        left: 22px;
+        right: 22px;
+        bottom: 22px;
+        gap: 12px;
+      }
+      .quiz-nav .nav-button {
+        min-width: 0;
+        width: calc(50% - 6px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <section id="start-screen" class="screen start-screen">
+      <div class="hero">
+        <div>
+          <div class="eyebrow">Mnemonic Drill</div>
+          <h1>정보처리기사 두음 암기 페이지</h1>
+        </div>
+        <p class="lead">과목군을 선택하고 문제를 본 뒤 두음을 입력하세요. 칠판 위에서 문제를 풀고, 노트 형식으로 상세 설명과 풀이 결과를 정리해 볼 수 있습니다.</p>
+        <div class="subject-grid">
+          <button class="subject-card" data-group="first" type="button">
+            <strong>1~6과목</strong>
+            <span>소프트웨어 설계, 데이터 모델링, UI, UML, 보안, 인터페이스 등 기초 이론 중심</span>
+          </button>
+          <button class="subject-card" data-group="second" type="button">
+            <strong>7~12과목</strong>
+            <span>트랜잭션, SQL, 테스트, 운영체제, 네트워크, 보안, 클라우드 등 실무 빈출 주제</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="quiz-screen" class="screen hidden">
+      <div class="topbar">
+        <div>
+          <h2 id="quiz-title"></h2>
+          <p id="quiz-subtitle"></p>
+        </div>
+        <div class="topbar-actions">
+          <div id="progress-badge" class="badge"></div>
+          <button id="finish-button" class="ghost" type="button">문제 풀이 종료</button>
+        </div>
+      </div>
+
+      <div class="quiz-layout">
+        <div class="panel">
+          <p class="question-label">Question</p>
+          <p id="question-text" class="question-text"></p>
+          <div class="input-wrap">
+            <input id="answer-input" class="answer-input" type="text" placeholder="두음을 입력하세요" autocomplete="off">
+            <button id="submit-button" class="primary" type="button">정답 확인</button>
+          </div>
+        </div>
+
+        <div id="result-box" class="result-box hidden">
+          <h3 id="result-title" class="result-title"></h3>
+          <p id="result-text" class="result-text"></p>
+          <div class="button-row result-actions">
+            <button id="detail-button" class="ghost" type="button">상세한 설명</button>
+            <button id="restart-button" class="ghost" type="button">과목 다시 선택</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-nav">
+        <button id="prev-button" class="secondary nav-button" type="button">이전 문제</button>
+        <button id="next-button" class="secondary nav-button" type="button">다음 문제</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+const firstGroup = [
+{ question: "소프트웨어 생명주기 모델 종류", answer: "폭프나반", description: "폭포수 / 프로토타이핑 / 나선형 / 반복적" },
+      { question: "나선형 모델 절차", answer: "계위개고", description: "계획 및 정의 / 위험 분석 / 개발 / 고객 평가" },
+      { question: "럼바우의 객체 지향 분석 절차", answer: "객동기", description: "객체 / 동적 / 기능" },
+      { question: "소프트웨어 아키텍처 4+1 뷰", answer: "유논프구배", description: "유스케이스 / 논리 / 프로세스 / 구현 / 배포" },
+      { question: "디자인 패턴 구성 요소", answer: "패문솔사결샘", description: "패턴 이름 / 문제 / 솔루션 / 사례 / 결과 / 샘플 코드" },
+      { question: "목적에 따른 디자인 패턴 유형", answer: "생구행", description: "생성 / 구조 / 행위" },
+      { question: "디자인 패턴 종류 - 생성", answer: "추빌팩프싱", description: "추상 팩토리 / 빌더 / 팩토리 / 프로토타입 / 싱글톤" },
+      { question: "디자인 패턴 종류 - 구조", answer: "어브컴데퍼플프", description: "어댑터 / 브릿지 / 컴포지트 / 데코레이터 / 퍼사드 / 플라이웨이트 / 프록시" },
+      { question: "디자인 패턴 종류 - 행위", answer: "미인이탬옵스테커비스트메체", description: "미디에이터 / 인터프리터 / 이터레이터 / 템플릿 메서드 / 옵저버 / 스테이트 / 커맨드 / 비지터 / 스트래티지 / 메멘토 / Chain of Responsibility" },
+      { question: "분석 산출물의 종류", answer: "현기인아소하네", description: "정보 시스템 구성 현황 / 정보 시스템 기능 구성도 / 인터페이스 현황 / 시스템 아키텍처 구성도 / 소프트웨어 구성도 / 하드웨어 구성도 / 네트워크 구성도" },
+      { question: "OSI 7계층", answer: "아파서티내다피나다", description: "Application(7) / Presentation(6) / Session(5) / Transport(4) / Network(3) / Data Link(2) / Physical(1)" },
+      { question: "DBMS 현행 시스템 분석 시 고려 사항", answer: "가성호기구", description: "가용성 / 성능 / 상호 호환성 / 기술 지원 / 구축 비용" },
+      { question: "요구사항 명세 원리 및 검증 항목", answer: "명완검일수추개", description: "명확성 / 완전성 / 검증 가능성 / 일관성 / 수정 용이성 / 추적 가능성 / 개발 후 이용성" },
+      { question: "정형 기술 검토", answer: "동워인", description: "동료 검토 / 워크 스루 / 인스펙션" },
+      { question: "상세 정형 기술 검토 기법", answer: "관기인워감", description: "관리 리뷰 / 기술 리뷰 / 인스펙션 / 워크 스루 / 감사" },
+      { question: "UI 유형", answer: "CGNO", description: "CLI / GUI / NUI / OUI" },
+      { question: "UI 설계 원칙", answer: "직유학유", description: "직관성 / 유효성 / 학습성 / 유연성" },
+      { question: "UI 설계 지침", answer: "사일단결가표접명오", description: "사용자 중심 / 일관성 / 단순성 / 결과 예측 가능 / 가시성 / 표준화 / 접근성 / 명확성 / 오류 발생 해결" },
+      { question: "UI 품질 요구사항", answer: "기신사효유이", description: "기능성 / 신뢰성 / 사용성 / 효율성 / 유지보수성 / 이식성" },
+      { question: "UI 화면 설계 구분", answer: "와스프", description: "와이어 프레임 / 스토리 보드 / 프로토 타입" },
+      { question: "UML의 특징", answer: "가구명문", description: "가시화 / 구축 / 명세화 / 문서화" },
+      { question: "UML 구성 요소", answer: "사관다", description: "사물 / 관계 / 다이어그램" },
+      { question: "구조적 다이어그램 / 정적 다이어그램", answer: "클객컴배복패", description: "클래스 / 객체 / 컴포넌트 / 배치 / 복합체 구조 / 패키지" },
+      { question: "행위적 다이어그램 / 동적 다이어그램", answer: "유시커상활타", description: "유스케이스 / 시퀀스 / 커뮤니케이션 / 상태 / 활동 / 타이밍" },
+      { question: "UML의 관계", answer: "연집복일의실", description: "연관 / 집합 / 복합 / 일반화 / 의존 / 실체화" },
+      { question: "UI 시나리오 문서의 작성 요건", answer: "완일이가추수", description: "완전성 / 일관성 / 이해성 / 가독성 / 추적 용이성 / 수정 용이성" },
+      { question: "데이터 모델링 절차", answer: "요개논물", description: "요구조건 분석 / 개념적 설계 / 논리적 설계 / 물리적 설계" },
+      { question: "일반 집합 연산", answer: "합교차카", description: "합집합 / 교집합 / 차집합 / 카티션 프로덕트" },
+      { question: "순수 관계 연산자", answer: "셀프조디", description: "셀렉트 / 프로젝트 / 조인 / 디비전" },
+      { question: "논리 데이터 모델링 속성", answer: "개속관", description: "개체 / 속성 / 관계" },
+      { question: "이상 현상의 종류", answer: "삽삭갱", description: "삽입 이상 / 삭제 이상 / 갱신 이상" },
+      { question: "데이터베이스 정규화 단계", answer: "원부이결다조", description: "원자화(1NF) / 부분함수 종속 제거(2NF) / 이행함수 종속 제거(3NF) / 결정자 함수 종속 제거(BCNF) / 다치 종속 제거(4NF) / 조인 종속 제거(5NF)" },
+      { question: "파티셔닝의 종류", answer: "레해리컴라", description: "레인지 파티셔닝 / 해시 파티셔닝 / 리스트 파티셔닝 / 컴포지트 파티셔닝 / 라운드로빈 파티셔닝" },
+      { question: "파티션의 장점", answer: "성가백합", description: "성능 향상 / 가용성 향상 / 백업 가능 / 경합 감소" },
+      { question: "데이터베이스 유형", answer: "키컬도그", description: "Key-Value Store / Column Family Data Store / Document Store / Graph" },
+      { question: "데이터 마이닝 주요 기법", answer: "분연연데", description: "분류 규칙 / 연관 규칙 / 연속 규칙 / 데이터 군집화" },
+      { question: "인터페이스 명세서 주요 항목", answer: "인최크시데", description: "인터페이스 ID / 최대 처리 횟수 / 데이터 크기(평균/최대) / 시스템 정보 / 데이터 정보" },
+      { question: "EAI 구축 유형", answer: "포허메하", description: "포인트 투 포인트 / 허브 앤 스포크 / 메시지 버스 / 하이브리드" },
+      { question: "시큐어 코딩 가이드 적용 대상", answer: "입보시에코캡아", description: "입력데이터 검증 및 표현 / 보안 기능 / 시간 및 상태 / 에러 처리 / 코드 오류 / 캡슐화 / API 오용" },
+      { question: "데이터베이스 암호화 알고리즘 유형", answer: "대비해", description: "대칭 키 암호화 알고리즘 / 비대칭 키 암호화 알고리즘 / 해시 암호화 알고리즘" },
+      { question: "데이터베이스 암호화 기법 유형", answer: "애플티하", description: "API 방식 / Plug-in 방식 / TDE 방식 / Hybrid 방식" },
+      { question: "인터페이스 구현 검증 도구", answer: "엑스피엔셀웨", description: "xUnit / STAF / FitNesse / NTAF / Selenium / Watir" },
+      { question: "연산자 우선 순위", answer: "증산시관비논삼대", description: "증감 연산자 / 산술 연산자 / 시프트 연산자 / 관계연산자 / 비트 연산자 / 논리 연산자 / 삼항 연산자 / 대입 연산자" },
+      { question: "객체지향 프로그래밍의 구성 요소", answer: "객클메", description: "객체 / 클래스 / 메시지" },
+      { question: "객체의 구성요소", answer: "개속메", description: "개체 / 속성 / 메서드" },
+      { question: "라이브러리의 구성", answer: "도설샘", description: "도움말 / 설치 파일 / 샘플코드" }
+    ];
+
+const secondGroup = [
+{ question: "트랜잭션의 특성", answer: "ACID", description: "Atomicity / Consistency / Isolation / Durability" },
+      { question: "트랜잭션의 상태", answer: "활부완신철", description: "활동 / 부분완료 / 완료 / 실패 / 철회 상태" },
+      { question: "TCL 명령어", answer: "커롤체", description: "커밋 / 롤백 / 체크 포인트" },
+      { question: "병행제어 미 보장시 문제점", answer: "갱현모연", description: "갱신 손실 / 현황 파악 오류 / 모순성 / 연쇄복귀" },
+      { question: "병행제어 기법", answer: "로낙타다", description: "로킹 / 낙관적 검증 / 타임 스탬프 순서 / 다중버전 동시성" },
+      { question: "회복 기법 종류", answer: "회로체크", description: "회복기법(로그 기반 회복 기법 / 체크 포인트 회복 기법 / 그림자 페이징 회복 기법)" },
+      { question: "DDL 대상", answer: "도스테뷰인", description: "도메인 / 스키마 / 테이블 / 뷰 / 인덱스" },
+      { question: "인덱스 종류", answer: "순해비함단결클", description: "순서 인덱스 / 해시 인덱스 / 비트맵 인덱스 / 함수기반 인덱스 / 단일 인덱스 / 결합 인덱스 / 클러스터드 인덱스" },
+      { question: "DDL 명령어", answer: "크알드트", description: "CREATE / ALTER / DROP / TRUNCATE" },
+      { question: "데이터베이스 DML", answer: "세인업데", description: "SELECT / INSERT / UPDATE / DELETE" },
+      { question: "SELECT 명령문", answer: "셀프웨구해오", description: "SELECT / FROM / WHERE / GROUP BY / HAVING / ORDER BY" },
+      { question: "GRANT 명령어", answer: "그온투", description: "GRANT 권한 ON 테이블 TO 사용자" },
+      { question: "REVOKE 명령어", answer: "리온프", description: "REVOKE 권한 ON 테이블 FROM 사용자" },
+      { question: "프로시저 구성", answer: "디비컨SET", description: "DECLARE / BEGIN/END / CONTROL / SQL / EXCEPTION / TRANSACTION" },
+      { question: "사용자 정의 함수 구성", answer: "디비컨SER", description: "DECLARE / BEGIN/END / CONTROL / SQL / EXCEPTION / RETURN" },
+      { question: "트리거 구성", answer: "디비컨SE", description: "DECLARE / BEGIN/END / CONTROL / SQL / EXCEPTION" },
+      { question: "개발 도구의 분류", answer: "빌구테형", description: "빌드 도구 / 구현 도구 / 테스트 도구 / 형상 관리 도구" },
+      { question: "형상 관리의 절차", answer: "식통감기", description: "형상 식별 / 형상 통제 / 형상 감사 / 형상 기록" },
+      { question: "응집도의 유형", answer: "우논시절통순기", description: "우연적 / 논리적 / 시간적 / 절차적 / 통신적 / 순차적 / 기능적 응집도" },
+      { question: "결합도의 유형", answer: "내공외제스자", description: "내용 / 공통 / 외부 / 제어 / 스템프 / 자료 결합도" },
+      { question: "배치 프로그램의 유형", answer: "이온정", description: "이벤트 배치 / 온디맨드 배치 / 정기 배치" },
+      { question: "쿼츠 Cron 표현식", answer: "초분시일월요연", description: "초 / 분 / 시간 / 일 / 월 / 요일 / 연도" },
+      { question: "보안의 3대 요소", answer: "기무가", description: "기밀성 / 무결성 / 가용성" },
+      { question: "SW 개발 보안 용어", answer: "자위취위", description: "자산 / 위협 / 취약점 / 위험" },
+      { question: "DDoS 공격 구성요소", answer: "HAMAD", description: "Handler / Agent / Master / Attacker / Daemon" },
+      { question: "인증 기술의 유형", answer: "지소생특", description: "지식 기반 / 소지 기반 / 생체 기반 / 특징 기반 인증" },
+      { question: "접근 통제 보호 모델", answer: "벨기비무", description: "벨-라파듈라 -> 기밀성 / 비바모델 -> 무결성 보장" },
+      { question: "소프트웨어 테스트 필요성", answer: "발예향", description: "오류 발견 / 오류 예방 / 품질 향상" },
+      { question: "소프트웨어 테스트의 원리", answer: "결완초집살정오", description: "결함이 존재 / 완벽한 테스팅 불가능 / 초기에 테스팅 시작 / 결함 집중 / 살충제 패러독스 / 정황에 의존 / 오류-부재 의궤변" },
+      { question: "화이트 박스 테스트 유형", answer: "구결조조변다기제데", description: "구문 커버리지 / 결정 커버리지 / 조건 커버리지 / 조건/결정 커버리지 / 변경 조건/결정 커버리지 / 다중조건 커버리지 / 기본경로 커버리지 / 제어 흐름 테스트 / 데이터 흐름 테스트" },
+      { question: "블랙박스 테스트 유형", answer: "동경결상유분페원비", description: "동등분할 테스트 / 경곗값 분석 테스트 / 결정 테이블 테스트 / 상태 전이 테스트 / 유스케이스 테스트 / 분류 테스트 / 페어와이즈 테스트 / 원인-결과 그래프 테스트 / 비교 테스트" },
+      { question: "테스트 목적에 따른 분류", answer: "회안성구회병", description: "회복 테스트 / 안전 테스트 / 성능 테스트 / 구조 테스트 / 회귀 테스트 / 병행 테스트" },
+      { question: "테스트 종류에 따른 분류", answer: "명구경", description: "명세 기반 테스트 / 구조 기반 테스트 / 경험 기반 테스트" },
+      { question: "테스트 커버리지 유형", answer: "기라코", description: "기능 기반 커버리지 / 라인 커버리지 / 코드 커버리지" },
+      { question: "테스트 오라클 종류", answer: "참샘휴일", description: "참 오라클 / 샘플링 오라클 / 휴리스틱 오라클 / 일관성 검사 오라클" },
+      { question: "테스트 레벨 종류", answer: "단통시인", description: "단위 테스트 / 통합 테스트 / 시스템 테스트 / 인수 테스트" },
+      { question: "하향식 및 상향식 통합 수행 방식", answer: "하스상드", description: "하향식(스텁), 상향식(드라이버)" },
+      { question: "테스트 하네스 구성요소", answer: "드스슈케시스목", description: "드라이버 / 스텁 / 슈트 / 케이스 / 시나리오 / 스크립트 / 목 오브젝트" },
+      { question: "결함 삼각도별 분류", answer: "치주보경단", description: "치명적(Critical) 결함 / 주요(Major) 결함 / 보통(Normal) 결함 / 경미한(Minor) 결함 / 단순(Simple) 결함" },
+      { question: "애플리케이션 성능 측정 지표", answer: "처응경자", description: "처리량 / 응답 시간 / 경과 시간 / 자원 사용률" },
+      { question: "데이터베이스 성능저하 원인", answer: "락페릭사커", description: "DB Lock / DB Fetch / Connection Leak / Pool Size / Commit" },
+      { question: "프로토콜의 기본 3요소", answer: "구의타", description: "구문 / 의미 / 타이밍" },
+      { question: "IPv4 전송 방식", answer: "유멀브", description: "유니캐스트 / 멀티캐스트 / 브로드캐스트" },
+      { question: "IPv6 전송 방식", answer: "유멀애", description: "유니캐스트 / 멀티캐스트 / 애니캐스트" },
+      { question: "TCP 특징", answer: "신연흐혼", description: "신뢰성 보장 / 연결 지향적 특징 / 흐름 제어 / 혼잡 제어" },
+      { question: "패키지 도구 구성요소", answer: "암키식저파정크인", description: "암호화 / 키 관리 / 식별 기술 / 저작권표현 / 암호화 파일 생성 / 정책 관리 / 크랙 방지 / 인증" },
+      { question: "제품 소프트웨어 설치 메뉴얼 기본 작성 항목", answer: "목이주구", description: "목차 및 개요 / 문서 이력 정보 / 설치 매뉴얼 주석 / 설치 도구의 구성" },
+      { question: "백업의 유형", answer: "전차증", description: "전체 백업 / 차등 백업 / 증분 백업" },
+      { question: "배드 코드 유형", answer: "오문이결침", description: "오염 / 문서 부족 / 의미 없는 이름 / 높은 결함도 / 아키텍처 침식" },
+      { question: "클린 코드 작성 원칙", answer: "가단의중추", description: "가독성 / 단순성 / 의존성 최소 / 중복성 제거 / 추상화" },
+      { question: "메모리 관리 기법의 종류", answer: "반배할교", description: "반입기법 / 배치기법 / 할당기법 / 교체기법" },
+      { question: "배치 기법의 유형", answer: "초적악", description: "최초 적합(First-fit) / 최적 적합(Best-fit) / 최악 적합(Worst-fit)" },
+      { question: "프로세스 상태", answer: "생준실대완", description: "생성 상태 / 준비 상태 / 실행 상태 / 대기 상태 / 완료 상태" },
+      { question: "프로세스 상태 전이", answer: "디타블웨", description: "디스패치 / 타이머 런 아웃 / 블록 / 웨이크 업" },
+      { question: "선점 스케줄링 알고리즘", answer: "SMMR", description: "SRT / MLQ / MLFQ / Round Robin" },
+      { question: "비선점 스케줄링 알고리즘", answer: "우기HFS", description: "우선순위 / 기한부 / HRN / FCFS / SJF" },
+      { question: "반환시간 및 대기시간 계산 방법", answer: "반종도대반서", description: "반환시간 = 종료 시간 - 도착 시간 / 대기시간 = 반환시간 - 서비스 시간" },
+      { question: "교착상태 발생 조건", answer: "상점비환", description: "상호 배제 / 점유와 대기 / 비선점 / 환형 대기" },
+      { question: "교착상태 해결 방법", answer: "예회발복", description: "예방 / 회피 / 발견 / 복구" },
+      { question: "클라우드 컴퓨팅 분류", answer: "사공하", description: "사설 클라우드 / 공용 클라우드 / 하이브리드 클라우드" },
+      { question: "클라우드 서비스 유형", answer: "인플소", description: "인프라형 서비스(IaaS) / 플랫폼형 서비스(PaaS) / 소프트웨어형 서비스(SaaS)" }
+    ];
+
+const termDetails = {
+"어댑터": "호환되지 않는 인터페이스를 연결해 기존 클래스를 수정하지 않고도 원하는 형식으로 사용할 수 있게 하는 구조 패턴입니다.",
+      "브릿지": "추상화와 구현을 분리해서 서로 독립적으로 확장할 수 있게 하는 구조 패턴입니다.",
+      "컴포지트": "부분 객체와 전체 객체를 동일한 방식으로 다룰 수 있도록 트리 구조로 구성하는 구조 패턴입니다.",
+      "데코레이터": "기존 객체를 바꾸지 않고 기능을 동적으로 덧붙일 수 있게 하는 구조 패턴입니다.",
+      "퍼사드": "복잡한 하위 시스템을 감싸고 단순한 인터페이스를 제공하는 구조 패턴이며 보통 퍼사드라고 표기합니다.",
+      "플라이웨이트": "공통 상태를 공유해 메모리 사용량을 줄이는 구조 패턴입니다.",
+      "프록시": "실제 객체 대신 대리 객체를 두어 접근 제어, 지연 로딩, 캐싱 등을 처리하는 구조 패턴입니다.",
+      "폭포수": "이전 단계 결과를 다음 단계로 넘기며 순차적으로 진행하는 전통적 소프트웨어 개발 모델입니다.",
+      "프로토타이핑": "시제품을 먼저 만들어 요구사항을 구체화한 뒤 개선해 나가는 개발 모델입니다.",
+      "나선형": "계획, 위험 분석, 개발, 평가를 반복하면서 점진적으로 완성도를 높이는 개발 모델입니다.",
+      "반복적": "기능을 반복적으로 구현하고 피드백을 반영하며 시스템을 발전시키는 개발 모델입니다.",
+      "객체": "데이터와 기능을 함께 가지는 독립 단위로 객체지향 분석의 중심 대상입니다.",
+      "동적": "시간 흐름에 따른 상태 변화나 상호작용을 분석하는 관점입니다.",
+      "기능": "시스템이 수행해야 할 처리 절차와 기능 요구를 분석하는 관점입니다.",
+      "유스케이스": "사용자와 시스템 사이 상호작용을 기준으로 기능 요구를 표현한 관점입니다.",
+      "논리": "주요 클래스와 객체 관계를 개념적으로 표현하는 관점입니다.",
+      "프로세스": "동시성, 프로세스 흐름, 성능 같은 실행 구조를 다루는 관점입니다.",
+      "구현": "소프트웨어를 실제 컴포넌트와 모듈 수준으로 바라보는 관점입니다.",
+      "배포": "실행 환경에 소프트웨어가 어떻게 배치되는지 표현하는 관점입니다.",
+      "생성": "객체 생성 방식에 초점을 둔 디자인 패턴 분류입니다.",
+      "구조": "클래스나 객체를 조합하는 방식에 초점을 둔 디자인 패턴 분류입니다.",
+      "행위": "객체 사이 책임 분배와 상호작용에 초점을 둔 디자인 패턴 분류입니다.",
+      "CLI": "명령어를 텍스트로 입력해 조작하는 사용자 인터페이스입니다.",
+      "GUI": "아이콘, 창, 버튼 같은 그래픽 요소로 조작하는 사용자 인터페이스입니다.",
+      "NUI": "터치, 제스처, 음성처럼 자연스러운 행위로 조작하는 사용자 인터페이스입니다.",
+      "OUI": "사물이나 환경과의 상호작용까지 포함하는 유비쿼터스 성격의 인터페이스입니다.",
+      "직관성": "사용자가 별도 학습 없이도 쉽게 이해하고 사용할 수 있어야 한다는 원칙입니다.",
+      "유효성": "사용자 목표를 정확하게 달성할 수 있도록 필요한 기능을 제공해야 한다는 원칙입니다.",
+      "학습성": "사용법을 익히기 쉽고 기억하기 쉬워야 한다는 원칙입니다.",
+      "유연성": "다양한 사용자와 상황에 맞게 조작 방식을 유연하게 지원해야 한다는 원칙입니다.",
+      "가시화": "시스템 구조와 동작을 보기 쉽게 표현할 수 있다는 UML의 특징입니다.",
+      "구축": "실제 시스템 구현에 필요한 모델을 만드는 데 활용할 수 있다는 특징입니다.",
+      "명세화": "시스템 요구와 구조를 명확한 형식으로 기술할 수 있다는 특징입니다.",
+      "문서화": "분석과 설계 결과를 체계적인 문서로 남길 수 있다는 의미입니다.",
+      "사물": "UML에서 구조나 행위를 표현하는 기본 모델 요소입니다.",
+      "관계": "사물과 사물 사이 연결과 의존을 표현하는 요소입니다.",
+      "다이어그램": "사물과 관계를 특정 목적에 맞게 시각화한 표현 결과입니다.",
+      "연관": "객체들이 서로 연결되어 있음을 나타내는 관계입니다.",
+      "집합": "전체와 부분 관계이지만 부분이 독립적으로 존재할 수 있는 관계입니다.",
+      "복합": "전체가 사라지면 부분도 함께 사라지는 강한 포함 관계입니다.",
+      "일반화": "상위 개념과 하위 개념의 상속 관계를 표현합니다.",
+      "의존": "한 요소의 변화가 다른 요소에 영향을 줄 수 있는 약한 관계입니다.",
+      "실체화": "인터페이스나 추상 명세를 실제 요소가 구현하는 관계입니다.",
+      "합집합": "두 릴레이션에 포함된 튜플을 모두 포함하는 집합 연산입니다.",
+      "교집합": "두 릴레이션에 공통으로 존재하는 튜플만 추출하는 집합 연산입니다.",
+      "차집합": "한 릴레이션에는 있고 다른 릴레이션에는 없는 튜플을 구하는 집합 연산입니다.",
+      "카티션 프로덕트": "두 릴레이션의 모든 튜플 조합을 만드는 연산이며 보통 카티션 프로덕트라고 표기합니다.",
+      "셀렉트": "조건에 맞는 행을 선택하는 관계 연산입니다.",
+      "프로젝트": "필요한 열만 추출하는 관계 연산입니다.",
+      "조인": "관련 있는 두 릴레이션을 결합하는 관계 연산입니다.",
+      "디비전": "특정 조건을 모두 만족하는 값을 찾는 관계 연산입니다.",
+      "삽입 이상": "데이터를 넣으려 할 때 불필요한 다른 정보가 함께 필요해지는 이상 현상입니다.",
+      "삭제 이상": "일부 데이터를 삭제했을 때 필요한 다른 정보까지 함께 사라지는 이상 현상입니다.",
+      "갱신 이상": "중복 데이터 일부만 수정되어 데이터 불일치가 생기는 이상 현상입니다.",
+      "ACID": "트랜잭션이 가져야 하는 원자성, 일관성, 고립성, 영속성의 4가지 핵심 특성입니다.",
+      "Atomicity": "트랜잭션의 연산은 모두 반영되거나 모두 취소되어야 한다는 성질입니다.",
+      "Consistency": "트랜잭션 수행 전후에 데이터베이스가 항상 일관된 상태를 유지해야 한다는 성질입니다.",
+      "Isolation": "동시에 실행되는 트랜잭션들이 서로 간섭하지 않아야 한다는 성질입니다.",
+      "Durability": "정상 완료된 트랜잭션 결과는 장애가 나도 보존되어야 한다는 성질입니다.",
+      "커밋": "트랜잭션 수행 결과를 최종 반영하는 명령입니다.",
+      "롤백": "트랜잭션 수행 내용을 이전 상태로 되돌리는 명령입니다.",
+      "체크 포인트": "회복 시 기준점이 되도록 중간 상태를 저장하는 기능입니다.",
+      "SELECT": "테이블에서 원하는 데이터를 조회하는 DML 명령입니다.",
+      "INSERT": "새 데이터를 테이블에 추가하는 DML 명령입니다.",
+      "UPDATE": "기존 데이터를 수정하는 DML 명령입니다.",
+      "DELETE": "기존 데이터를 삭제하는 DML 명령입니다.",
+      "CREATE": "데이터베이스 객체를 생성하는 DDL 명령입니다.",
+      "ALTER": "기존 데이터베이스 객체 구조를 변경하는 DDL 명령입니다.",
+      "DROP": "데이터베이스 객체를 삭제하는 DDL 명령입니다.",
+      "TRUNCATE": "테이블 구조는 유지한 채 모든 행을 빠르게 제거하는 DDL 성격의 명령입니다.",
+      "기밀성": "인가된 사용자만 정보에 접근할 수 있어야 한다는 보안 요소입니다.",
+      "무결성": "정보가 인가되지 않은 방식으로 변경되지 않아야 한다는 보안 요소입니다.",
+      "가용성": "필요한 시점에 정보와 시스템을 사용할 수 있어야 한다는 보안 요소입니다.",
+      "유니캐스트": "하나의 송신자가 하나의 수신자에게 데이터를 보내는 방식입니다.",
+      "멀티캐스트": "하나의 송신자가 특정 그룹의 여러 수신자에게 데이터를 보내는 방식입니다.",
+      "브로드캐스트": "하나의 송신자가 같은 네트워크의 모든 호스트에게 데이터를 보내는 방식입니다.",
+      "애니캐스트": "여러 후보 중 가장 가까운 한 수신자에게 데이터를 보내는 방식입니다.",
+      "SRT": "남은 실행 시간이 가장 짧은 프로세스를 우선 실행하는 선점형 스케줄링입니다.",
+      "MLQ": "여러 개의 준비 큐를 두고 큐별 우선순위에 따라 스케줄링하는 방식입니다.",
+      "MLFQ": "프로세스 특성에 따라 큐를 이동시키며 우선순위를 조정하는 선점형 스케줄링입니다.",
+      "Round Robin": "정해진 시간 할당량만큼 번갈아 실행하는 대표적인 선점형 스케줄링입니다.",
+      "FCFS": "먼저 도착한 작업을 먼저 처리하는 비선점 스케줄링입니다.",
+      "SJF": "실행 시간이 가장 짧은 작업을 먼저 처리하는 비선점 스케줄링입니다.",
+      "HRN": "대기 시간과 서비스 시간을 함께 고려해 응답 비율이 높은 작업을 우선 처리하는 방식입니다.",
+      "IaaS": "서버, 스토리지, 네트워크 같은 인프라를 서비스 형태로 제공하는 클라우드 모델입니다.",
+      "PaaS": "애플리케이션 개발과 실행 환경을 플랫폼 형태로 제공하는 클라우드 모델입니다.",
+      "SaaS": "완성된 소프트웨어를 인터넷을 통해 바로 사용할 수 있게 제공하는 클라우드 모델입니다."
+    };
+
+  </script>
+  <script>
+    const groups = {
+      first: { title: "1~6과목", subtitle: "소프트웨어 설계 · UML · 데이터 모델링 · 보안 · 인터페이스", items: firstGroup },
+      second: { title: "7~12과목", subtitle: "데이터베이스 · 테스트 · 운영체제 · 네트워크 · 보안 · 클라우드", items: secondGroup }
+    };
+
+    let currentGroupKey = null;
+    let currentIndex = 0;
+    let currentOrder = [];
+    let sessionResults = [];
+    let summaryWindowRef = null;
+    const params = new URLSearchParams(window.location.search);
+    const initialGroupKey = params.get("group");
+    const initialView = params.get("view");
+    let initialPageHtml = "";
+    window.addEventListener("load", () => {
+      initialPageHtml = document.documentElement.outerHTML;
+    }, { once: true });
+
+    const startScreen = document.getElementById("start-screen");
+    const quizScreen = document.getElementById("quiz-screen");
+    const quizTitle = document.getElementById("quiz-title");
+    const quizSubtitle = document.getElementById("quiz-subtitle");
+    const progressBadge = document.getElementById("progress-badge");
+    const questionText = document.getElementById("question-text");
+    const answerInput = document.getElementById("answer-input");
+    const submitButton = document.getElementById("submit-button");
+    const resultBox = document.getElementById("result-box");
+    const resultTitle = document.getElementById("result-title");
+    const resultText = document.getElementById("result-text");
+    const detailButton = document.getElementById("detail-button");
+    const prevButton = document.getElementById("prev-button");
+    const nextButton = document.getElementById("next-button");
+    const restartButton = document.getElementById("restart-button");
+    const finishButton = document.getElementById("finish-button");
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function normalize(value) {
+      return value.replace(/\s+/g, "").trim();
+    }
+
+    function getCurrentItems() {
+      return groups[currentGroupKey].items;
+    }
+
+    function getCurrentItem() {
+      return getCurrentItems()[currentOrder[currentIndex]];
+    }
+
+    function shuffleIndices(length) {
+      const indices = Array.from({ length }, (_, index) => index);
+      for (let i = indices.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+      return indices;
+    }
+
+    function resetResult() {
+      resultBox.className = "result-box hidden";
+      resultTitle.textContent = "";
+      resultText.textContent = "";
+      submitButton.textContent = "정답 확인";
+      submitButton.classList.remove("is-next");
+      nextButton.textContent = currentIndex === currentOrder.length - 1 ? "결과 보기" : "다음 문제";
+    }
+
+    function showNextState() {
+      submitButton.textContent = currentIndex === currentOrder.length - 1 ? "결과 보기" : "다음";
+      submitButton.classList.add("is-next");
+    }
+
+    function goToNextStep() {
+      if (currentIndex === currentOrder.length - 1) {
+        openSummaryWindow();
+        return;
+      }
+      currentIndex += 1;
+      renderQuestion();
+    }
+
+    function pulseAnswerInput() {
+      answerInput.classList.remove("attention");
+      void answerInput.offsetWidth;
+      answerInput.classList.add("attention");
+      answerInput.focus();
+    }
+
+    function renderQuestion() {
+      const items = getCurrentItems();
+      const item = getCurrentItem();
+      const saved = sessionResults[currentIndex];
+      quizTitle.textContent = groups[currentGroupKey].title;
+      quizSubtitle.textContent = groups[currentGroupKey].subtitle;
+      progressBadge.textContent = `${currentIndex + 1} / ${items.length}`;
+      questionText.textContent = item.question;
+      answerInput.value = saved ? saved.userAnswerRaw : "";
+      answerInput.classList.remove("attention");
+      prevButton.disabled = currentIndex === 0;
+      resetResult();
+      answerInput.focus();
+    }
+    function showQuiz(groupKey) {
+      currentGroupKey = groupKey;
+      currentIndex = 0;
+      currentOrder = shuffleIndices(groups[groupKey].items.length);
+      sessionResults = new Array(currentOrder.length).fill(null);
+      startScreen.classList.add("hidden");
+      quizScreen.classList.remove("hidden");
+      renderQuestion();
+    }
+
+    function showStart() {
+      currentGroupKey = null;
+      currentIndex = 0;
+      currentOrder = [];
+      sessionResults = [];
+      quizScreen.classList.add("hidden");
+      startScreen.classList.remove("hidden");
+      answerInput.value = "";
+      resetResult();
+    }
+
+    function renderAnswerSheetPage(groupKey) {
+      if (!groups[groupKey]) return;
+      const items = groups[groupKey].items;
+      const title = groups[groupKey].title;
+      const baseHref = window.location.href.split("?")[0];
+      const retryHref = `${baseHref}?group=${encodeURIComponent(groupKey)}`;
+      const homeHref = baseHref;
+      const cards = items.map((entry, index) => {
+        return `<article class="item"><div class="meta"><span class="order">${index + 1}번 문제</span><span class="status answer"></span></div><h3>${escapeHtml(entry.question)}</h3><p>정답 두음: ${escapeHtml(entry.answer)}\n설명: ${escapeHtml(entry.description)}</p></article>`;
+      }).join("");
+      document.title = `${title} 전체 답안지`;
+      document.head.innerHTML = `
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(title)} 전체 답안지</title>
+  <style>:root{--board:#213d30;--chalk:#eef4e7;--chalk-soft:rgba(238,244,231,.72);--frame:#765536;--line:rgba(238,244,231,.14);--accent:#f3d17c;--answer:#d7efff;--answer-bg:rgba(44,87,118,.86);}*{box-sizing:border-box;}body{margin:0;min-height:100vh;font-family:"Pretendard","Noto Sans KR",sans-serif;color:var(--chalk);background:linear-gradient(180deg,#b58a5a 0%,#8d653e 18%,#6b4a2d 100%);padding:18px;}.wrap{max-width:1280px;min-height:calc(100vh - 36px);margin:0 auto;border:14px solid var(--frame);border-radius:28px;background:linear-gradient(180deg,#234131 0%,#1d372a 100%);box-shadow:inset 0 0 0 3px rgba(76,50,28,.55),0 26px 56px rgba(8,20,15,.35);padding:26px;position:relative;overflow:hidden;}.wrap::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 2px,transparent 2px 56px);pointer-events:none;}.hero{position:relative;z-index:1;margin-bottom:18px;display:flex;justify-content:space-between;gap:18px;align-items:flex-start;}.hero-copy{flex:1;min-width:0;}.hero h1{margin:0 0 8px;font-size:clamp(30px,4vw,46px);letter-spacing:-.05em;color:var(--accent);}.hero p{margin:0;color:var(--chalk-soft);font-size:17px;line-height:1.8;}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}.hero-actions button{border:1px solid rgba(243,209,124,.2);border-radius:999px;padding:12px 16px;background:rgba(243,209,124,.08);color:var(--accent);font-size:15px;font-weight:900;cursor:pointer;}.hero-actions button.active{background:linear-gradient(180deg,#f2d47d 0%,#d2a94d 100%);color:#2d2210;}.hero-actions button.answer-sheet{background:rgba(237,245,233,.08);color:var(--chalk);border-color:rgba(237,245,233,.18);}.list{position:relative;z-index:1;display:grid;gap:14px;}.item{border-radius:22px;border:1px solid var(--line);padding:20px 22px;background:linear-gradient(180deg,rgba(76,128,170,.18),var(--answer-bg));}.meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:14px;font-weight:800;}.order{color:var(--accent);}.status.answer{color:var(--answer);}.item h3{margin:0 0 10px;font-size:25px;font-weight:900;}.item p{margin:0;white-space:pre-line;font-size:17px;line-height:1.85;color:#fffef8;font-weight:700;}@media (max-width:720px){body{padding:10px;}.wrap{border-width:10px;padding:18px;min-height:calc(100vh - 20px);}.hero{flex-direction:column;}.hero-actions{width:100%;}.hero-actions button{width:100%;}}</style>`;
+      document.body.innerHTML = `
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>${escapeHtml(title)} 전체 답안지</h1>
+        <p>이번 회차의 모든 문제 정답과 설명을 한 번에 볼 수 있습니다.</p>
+      </div>
+      <div class="hero-actions">
+        <button class="active" type="button" onclick="window.location.replace('${retryHref}')">다시 풀기</button>
+        <button class="answer-sheet" type="button" onclick="window.location.replace('${homeHref}')">과목 선택</button>
+      </div>
+    </section>
+    <section class="list">${cards}</section>
+  </div>`;
+    }
+    function explainTerm(term, item) {
+      if (termDetails[term]) return termDetails[term];
+      if (item.question.includes("유형") || item.question.includes("종류")) return `${term}는 ${item.question}에 포함되는 항목입니다. 정의와 특징, 차이를 함께 기억하면 좋습니다.`;
+      if (item.question.includes("구성") || item.question.includes("구성 요소")) return `${term}는 ${item.question}을 이루는 핵심 구성 요소입니다.`;
+      if (item.question.includes("절차") || item.question.includes("단계")) return `${term}는 ${item.question}에서 순서대로 기억해야 하는 단계입니다.`;
+      if (item.question.includes("원칙") || item.question.includes("지침")) return `${term}는 ${item.question}에서 지켜야 하는 핵심 기준입니다.`;
+      if (item.question.includes("명령어")) return `${term}는 ${item.question}에 해당하는 주요 명령어입니다.`;
+      return `${term}는 ${item.question}에서 기억해야 하는 핵심 항목입니다.`;
+    }
+
+    function buildDetailItems(item) {
+      return item.description.split("/").map((part) => part.trim()).filter(Boolean).map((term) => ({ term, explanation: explainTerm(term, item) }));
+    }
+
+    function openDetailWindow() {
+      const item = getCurrentItem();
+      const details = buildDetailItems(item);
+      const width = Math.min(1080, Math.floor(window.screen.availWidth * 0.86));
+      const height = Math.max(720, window.screen.availHeight - 40);
+      const left = Math.max(0, Math.floor((window.screen.availWidth - width) / 2));
+      const top = Math.max(0, Math.floor((window.screen.availHeight - height) / 2));
+      const popup = window.open("", "_blank", `width=${width},height=${height},left=${left},top=${top}`);
+      if (!popup) {
+        alert("팝업이 차단되었습니다. 브라우저에서 팝업을 허용해 주세요.");
+        return;
+      }
+      const cards = details.map((detail) => `<article class="detail-card"><h3>${escapeHtml(detail.term)}</h3><p>${escapeHtml(detail.explanation)}</p></article>`).join("");
+      const page = `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${escapeHtml(item.question)} 상세 설명</title><style>:root{--paper:#fbf7ea;--ink:#2d3440;--muted:#53616d;--accent:#d9534f;--blue-line:rgba(92,148,216,0.26);--shadow:0 22px 48px rgba(103,88,57,0.16);}*{box-sizing:border-box;}body{margin:0;min-height:100vh;font-family:"Pretendard","Noto Sans KR",sans-serif;color:var(--ink);background:linear-gradient(180deg,#ece3c7 0%,#d9ccae 100%);padding:20px;}.wrap{max-width:980px;min-height:calc(100vh - 40px);margin:0 auto;position:relative;padding-top:38px;}.wrap::before{content:"";position:absolute;left:22px;right:22px;top:8px;height:12px;border-radius:999px;background:radial-gradient(circle,#c7c7c7 0 4px,transparent 4px) center / 34px 12px repeat-x;opacity:.95;}.hero,.detail-card{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.22)),repeating-linear-gradient(180deg,transparent 0 35px,var(--blue-line) 35px 36px),var(--paper);border:1px solid rgba(82,96,109,.1);border-radius:18px;padding:34px 26px 24px;box-shadow:var(--shadow);overflow:hidden;}.hero::before,.detail-card::before{content:"";position:absolute;left:0;right:0;top:28px;height:2px;background:rgba(217,83,79,.24);}.hero{margin-bottom:18px;}.eyebrow{margin-bottom:8px;font-size:12px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);}h1{margin:0 0 14px;font-size:clamp(30px,4vw,44px);line-height:1.14;letter-spacing:-.05em;}.answer{display:inline-block;margin-bottom:16px;padding:12px 16px;border-radius:14px;background:rgba(217,83,79,.08);border:1px solid rgba(217,83,79,.14);color:#b73f3c;font-size:22px;font-weight:900;}.summary{margin:0;color:var(--muted);font-size:17px;line-height:1.95;font-weight:700;white-space:pre-line;}.grid{display:grid;gap:16px;}.detail-card h3{margin:0 0 12px;font-size:25px;font-weight:900;}.detail-card p{margin:0;color:var(--muted);font-size:18px;line-height:1.95;font-weight:700;white-space:pre-line;}</style></head><body><div class="wrap"><section class="hero"><div class="eyebrow">Detail Note</div><h1>${escapeHtml(item.question)}</h1><div class="answer">두음: ${escapeHtml(item.answer)}</div><p class="summary">원문 항목: ${escapeHtml(item.description)}\n각 항목의 핵심 의미를 아래에 정리했습니다.</p></section><section class="grid">${cards}</section></div></body></html>`;
+      popup.document.open();
+      popup.document.write(page);
+      popup.document.close();
+    }
+
+    function openAnswerSheetWindow() {
+      if (!currentGroupKey) return;
+      const items = currentOrder.map((itemIndex, orderIndex) => {
+        const item = getCurrentItems()[itemIndex];
+        return { order: orderIndex + 1, question: item.question, answer: item.answer, description: item.description };
+      });
+      const width = Math.min(1280, Math.floor(window.screen.availWidth * 0.9));
+      const height = Math.max(760, window.screen.availHeight - 30);
+      const left = Math.max(0, Math.floor((window.screen.availWidth - width) / 2));
+      const top = Math.max(0, Math.floor((window.screen.availHeight - height) / 2));
+      const popup = window.open("", "_blank", `width=${width},height=${height},left=${left},top=${top}`);
+      if (!popup) {
+        alert("팝업이 차단되었습니다. 브라우저에서 팝업을 허용해 주세요.");
+        return;
+      }
+      const cards = items.map((entry) => `<article class="item"><div class="meta"><span class="order">${entry.order}번 문제</span><span class="status answer"></span></div><h3>${escapeHtml(entry.question)}</h3><p>정답 두음: ${escapeHtml(entry.answer)}\n설명: ${escapeHtml(entry.description)}</p></article>`).join("");
+      const page = `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${escapeHtml(groups[currentGroupKey].title)} 전체 답안지</title><style>:root{--board:#213d30;--chalk:#eef4e7;--chalk-soft:rgba(238,244,231,.72);--frame:#765536;--line:rgba(238,244,231,.14);--accent:#f3d17c;--answer:#d7efff;--answer-bg:rgba(44,87,118,.86);}*{box-sizing:border-box;}body{margin:0;min-height:100vh;font-family:"Pretendard","Noto Sans KR",sans-serif;color:var(--chalk);background:linear-gradient(180deg,#b58a5a 0%,#8d653e 18%,#6b4a2d 100%);padding:18px;}.wrap{max-width:1280px;min-height:calc(100vh - 36px);margin:0 auto;border:14px solid var(--frame);border-radius:28px;background:linear-gradient(180deg,#234131 0%,#1d372a 100%);box-shadow:inset 0 0 0 3px rgba(76,50,28,.55),0 26px 56px rgba(8,20,15,.35);padding:26px;position:relative;overflow:hidden;}.wrap::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 2px,transparent 2px 56px);pointer-events:none;}.hero{position:relative;z-index:1;margin-bottom:18px;}.hero h1{margin:0 0 8px;font-size:clamp(30px,4vw,46px);letter-spacing:-.05em;color:var(--accent);}.hero p{margin:0;color:var(--chalk-soft);font-size:17px;line-height:1.8;}.list{position:relative;z-index:1;display:grid;gap:14px;}.item{border-radius:22px;border:1px solid var(--line);padding:20px 22px;background:linear-gradient(180deg,rgba(76,128,170,.18),var(--answer-bg));}.meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:14px;font-weight:800;}.order{color:var(--accent);}.status.answer{color:var(--answer);}.item h3{margin:0 0 10px;font-size:25px;font-weight:900;}.item p{margin:0;white-space:pre-line;font-size:17px;line-height:1.85;color:#fffef8;font-weight:700;}</style></head><body><div class="wrap"><section class="hero"><h1>${escapeHtml(groups[currentGroupKey].title)} 전체 답안지</h1><p>이번 회차의 모든 문제 정답과 설명을 한 번에 볼 수 있습니다.</p></section><section class="list">${cards}</section></div></body></html>`;
+      popup.document.open();
+      popup.document.write(page);
+      popup.document.close();
+    }
+
+    function openSummaryWindow() {
+      if (!currentGroupKey) return;
+      const summaryItems = currentOrder.map((itemIndex, orderIndex) => {
+        const item = getCurrentItems()[itemIndex];
+        const result = sessionResults[orderIndex];
+        return {
+          order: orderIndex + 1,
+          question: item.question,
+          answer: item.answer,
+          description: item.description,
+          userAnswer: result ? result.userAnswerRaw : "-",
+          status: result ? (result.isCorrect ? "정답" : "오답") : "미응답"
+        };
+      });
+      const respondedItems = summaryItems.filter((entry) => entry.status !== "미응답");
+      const answerSheetItems = currentOrder.map((itemIndex, orderIndex) => {
+        const item = getCurrentItems()[itemIndex];
+        return {
+          order: orderIndex + 1,
+          question: item.question,
+          answer: item.answer,
+          description: item.description
+        };
+      });
+      const baseHref = window.location.href.split("?")[0];
+      const retryHref = `${baseHref}?group=${encodeURIComponent(currentGroupKey)}`;
+      const homeHref = baseHref;
+      const summaryData = JSON.stringify(respondedItems).replace(/</g, "\\u003c");
+      const answerSheetData = JSON.stringify(answerSheetItems).replace(/</g, "\\u003c");
+
+      const initialList = respondedItems.length
+        ? respondedItems.map((entry) => {
+            const className = entry.status === "정답" ? "correct" : "wrong";
+            return `<article class="item ${className}"><div class="meta"><span class="order">${entry.order}번 문제</span><span class="status ${className}">${entry.status}</span></div><h3>${escapeHtml(entry.question)}</h3><p>입력한 두음: ${escapeHtml(entry.userAnswer)}\n정답 두음: ${escapeHtml(entry.answer)}\n설명: ${escapeHtml(entry.description)}</p></article>`;
+          }).join("")
+        : `<article class="empty-card"><h3>아직 채점된 문제가 없습니다.</h3><p>문제를 하나 이상 푼 뒤 결과 페이지를 열면 응답한 문제만 정리해서 보여줍니다.</p></article>`;
+
+      const page = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(groups[currentGroupKey].title)} 풀이 결과</title>
+  <style>:root{--board:#213d30;--chalk:#eef4e7;--chalk-soft:rgba(238,244,231,.72);--frame:#765536;--card:rgba(15,45,32,.88);--line:rgba(238,244,231,.14);--accent:#f3d17c;--wrong:#ffcfc8;--wrong-bg:rgba(126,54,46,.88);--correct:#d5ffe0;--correct-bg:rgba(49,107,73,.86);--panel:rgba(255,255,255,.05);--answer:#d7efff;--answer-bg:rgba(44,87,118,.86);}*{box-sizing:border-box;}body{margin:0;min-height:100vh;font-family:"Pretendard","Noto Sans KR",sans-serif;color:var(--chalk);background:linear-gradient(180deg,#b58a5a 0%,#8d653e 18%,#6b4a2d 100%);padding:18px;}.wrap{max-width:1280px;min-height:calc(100vh - 36px);margin:0 auto;border:14px solid var(--frame);border-radius:28px;background:linear-gradient(180deg,#234131 0%,#1d372a 100%);box-shadow:inset 0 0 0 3px rgba(76,50,28,.55),0 26px 56px rgba(8,20,15,.35);padding:26px;position:relative;overflow:hidden;}.wrap::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 2px,transparent 2px 56px);pointer-events:none;}.hero{position:relative;z-index:1;margin-bottom:18px;display:flex;justify-content:space-between;gap:18px;align-items:flex-start;}.hero-copy{flex:1;min-width:0;}.hero h1{margin:0 0 8px;font-size:clamp(30px,4vw,46px);letter-spacing:-.05em;color:var(--accent);}.hero p{margin:0;color:var(--chalk-soft);font-size:17px;line-height:1.8;}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}.hero-actions button,.toolbar button{border:1px solid rgba(243,209,124,.2);border-radius:999px;padding:12px 16px;background:rgba(243,209,124,.08);color:var(--accent);font-size:15px;font-weight:900;cursor:pointer;}.hero-actions button.active,.toolbar button.active{background:linear-gradient(180deg,#f2d47d 0%,#d2a94d 100%);color:#2d2210;}.hero-actions button.answer-sheet,.toolbar button.answer-sheet{background:rgba(237,245,233,.08);color:var(--chalk);border-color:rgba(237,245,233,.18);}.toolbar{position:relative;z-index:1;display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}.list{position:relative;z-index:1;display:grid;gap:14px;}.item{border-radius:22px;border:1px solid var(--line);padding:20px 22px;background:var(--card);}.item.correct{background:linear-gradient(180deg,rgba(88,160,112,.22),var(--correct-bg));}.item.wrong{background:linear-gradient(180deg,rgba(176,91,75,.2),var(--wrong-bg));}.item.answer{background:linear-gradient(180deg,rgba(76,128,170,.18),var(--answer-bg));}.meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:14px;font-weight:800;}.order{color:var(--accent);}.status.correct{color:var(--correct);}.status.wrong{color:var(--wrong);}.status.answer{color:var(--answer);}.item h3,.empty-card h3{margin:0 0 10px;font-size:25px;font-weight:900;}.item p,.empty-card p{margin:0;white-space:pre-line;font-size:17px;line-height:1.85;color:#fffef8;font-weight:700;}.empty-card{border-radius:22px;border:1px solid var(--line);padding:24px;background:linear-gradient(180deg,rgba(255,255,255,.04),var(--panel));}.toolbar .answer-sheet.is-active{background:linear-gradient(180deg,#d8ecff 0%,#a8c9ef 100%);color:#19324d;border-color:rgba(168,201,239,.45);}@media (max-width:720px){body{padding:10px;}.wrap{border-width:10px;padding:18px;min-height:calc(100vh - 20px);}.hero{flex-direction:column;}.hero-actions{width:100%;}.hero-actions button,.toolbar button{width:100%;}.toolbar{flex-direction:column;}}</style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>${escapeHtml(groups[currentGroupKey].title)} 풀이 결과</h1>
+        <p>응답한 문제만 정리해서 보여줍니다. 전체 문제의 정답은 전체 답안지 버튼으로 확인할 수 있습니다.</p>
+      </div>
+      <div class="hero-actions">
+        <button class="active" type="button" onclick="window.location.replace('${retryHref}')">다시 풀기</button>
+        <button class="answer-sheet" type="button" onclick="window.location.replace('${homeHref}')">과목 선택</button>
+      </div>
+    </section>
+    <section class="toolbar">
+      <button class="sort-button active" data-sort="sequence" type="button" onclick="renderSummary('sequence')">문제 풀이 순서대로 정렬</button>
+      <button class="sort-button" data-sort="wrong" type="button" onclick="renderSummary('wrong')">오답 우선순위 정렬</button>
+      <button class="sort-button" data-sort="correct" type="button" onclick="renderSummary('correct')">정답 우선순위 정렬</button>
+      <button id="answer-sheet-button" class="answer-sheet" type="button" onclick="renderAnswerSheet()">전체 답안지</button>
+    </section>
+    <section id="result-list" class="list">${initialList}</section>
+  </div>
+  <script>
+    const summaryItems = ${summaryData};
+    const answerSheetItems = ${answerSheetData};
+    const list = document.getElementById('result-list');
+    const answerSheetButton = document.getElementById('answer-sheet-button');
+    function emptySummaryHtml(){return '<article class="empty-card"><h3>아직 채점된 문제가 없습니다.</h3><p>문제를 하나 이상 푼 뒤 결과 페이지를 열면 응답한 문제만 정리해서 보여줍니다.</p></article>';}
+    function summaryHtml(items){if(!items.length){return emptySummaryHtml();}return items.map((entry)=>{const className=entry.status==='정답'?'correct':'wrong';return '<article class="item '+className+'"><div class="meta"><span class="order">'+entry.order+'번 문제</span><span class="status '+className+'">'+entry.status+'</span></div><h3>'+entry.question+'</h3><p>입력한 두음: '+entry.userAnswer+'\\n정답 두음: '+entry.answer+'\\n설명: '+entry.description+'</p></article>';}).join('');}
+    function answerSheetHtml(items){return items.map((entry)=>'<article class="item answer"><div class="meta"><span class="order">'+entry.order+'번 문제</span><span class="status answer"></span></div><h3>'+entry.question+'</h3><p>정답 두음: '+entry.answer+'\\n설명: '+entry.description+'</p></article>').join('');}
+    function rank(entry,mode){if(mode==='wrong') return entry.status==='오답'?0:1; if(mode==='correct') return entry.status==='정답'?0:1; return entry.order-1;}
+    function setSummaryMode(mode){document.querySelectorAll('[data-sort]').forEach((item)=>item.classList.toggle('active', item.dataset.sort===mode)); answerSheetButton.classList.remove('is-active');}
+    function renderSummary(mode){setSummaryMode(mode); const sorted=[...summaryItems].sort((a,b)=>rank(a,mode)-rank(b,mode)||a.order-b.order); list.innerHTML=summaryHtml(sorted);}
+    function renderAnswerSheet(){document.querySelectorAll('[data-sort]').forEach((item)=>item.classList.remove('active')); answerSheetButton.classList.add('is-active'); list.innerHTML=answerSheetHtml(answerSheetItems);}
+  <\/script>
+</body>
+</html>`;
+
+      document.open();
+      document.write(page);
+      document.close();
+    }
+    function checkAnswer() {
+      const item = getCurrentItem();
+      const userAnswerRaw = answerInput.value.trim();
+      const normalizedInput = normalize(userAnswerRaw);
+      const correct = normalize(item.answer);
+      if (!normalizedInput) {
+        pulseAnswerInput();
+        return;
+      }
+      const isCorrect = normalizedInput === correct;
+      sessionResults[currentIndex] = { userAnswerRaw, isCorrect };
+      resultBox.className = isCorrect ? "result-box success" : "result-box error";
+      resultTitle.textContent = isCorrect ? "정답입니다!" : "오답입니다!";
+      resultText.textContent = `입력한 두음: ${userAnswerRaw}\n정답: ${item.answer}\n설명: ${item.description}`;
+      showNextState();
+      nextButton.textContent = currentIndex === currentOrder.length - 1 ? "결과 보기" : "다음 문제";
+      if (currentIndex === currentOrder.length - 1) {
+        setTimeout(() => openSummaryWindow(), 120);
+      }
+    }
+
+    document.querySelectorAll("[data-group]").forEach((button) => button.addEventListener("click", () => showQuiz(button.dataset.group)));
+    submitButton.addEventListener("click", () => {
+      if (!resultBox.classList.contains("hidden")) {
+        goToNextStep();
+        return;
+      }
+      checkAnswer();
+    });
+    detailButton.addEventListener("click", openDetailWindow);
+    finishButton.addEventListener("click", openSummaryWindow);
+    restartButton.addEventListener("click", showStart);
+    answerInput.addEventListener("animationend", () => {
+      answerInput.classList.remove("attention");
+    });
+    answerInput.addEventListener("input", () => {
+      if (answerInput.value.trim()) answerInput.classList.remove("attention");
+    });
+    answerInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        if (!resultBox.classList.contains("hidden")) {
+          goToNextStep();
+          return;
+        }
+        checkAnswer();
+      }
+    });
+    prevButton.addEventListener("click", () => {
+      if (currentIndex > 0) {
+        currentIndex -= 1;
+        renderQuestion();
+      }
+    });
+    nextButton.addEventListener("click", () => {
+      goToNextStep();
+    });
+
+    if (initialView === "answer-sheet" && initialGroupKey && groups[initialGroupKey]) {
+      renderAnswerSheetPage(initialGroupKey);
+    } else if (initialGroupKey && groups[initialGroupKey]) {
+      showQuiz(initialGroupKey);
+    }
+  </script>
+</body>
+</html>
