@@ -431,48 +431,225 @@
       box-shadow: 0 10px 24px rgba(6, 17, 13, 0.18);
       pointer-events: auto;
     }
+    /* --- Progress Bar (all screens, hidden on desktop) --- */
+    .progress-bar {
+      display: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(237, 245, 233, 0.08);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #f3d17c, #d9f29b);
+      transition: width 0.3s ease;
+    }
+
+    /* --- Bottom Sheet --- */
+    .bottom-sheet-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 9000;
+    }
+    .bottom-sheet-overlay.open { display: block; }
+    .bottom-sheet {
+      display: none;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 9001;
+      max-height: 82vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 24px 24px 0 0;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.42), rgba(255,255,255,0.22)),
+        repeating-linear-gradient(180deg, transparent 0 35px, rgba(92,148,216,0.26) 35px 36px),
+        #fbf7ea;
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+      color: #2d3440;
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+    }
+    .bottom-sheet.open { display: block; }
+    .sheet-handle {
+      display: flex;
+      justify-content: center;
+      padding: 12px 0 8px;
+      cursor: grab;
+    }
+    .sheet-handle span {
+      width: 40px; height: 4px;
+      border-radius: 2px;
+      background: rgba(45,52,64,0.2);
+    }
+    .sheet-content { padding: 0 20px 20px; }
+    .sheet-eyebrow {
+      font-size: 11px; font-weight: 900;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: #d9534f; margin-bottom: 8px;
+    }
+    .sheet-title {
+      font-size: 22px; font-weight: 900;
+      letter-spacing: -0.04em; line-height: 1.2;
+      color: #2d3440; margin: 0 0 10px;
+    }
+    .sheet-answer {
+      display: inline-block;
+      padding: 8px 14px; border-radius: 12px;
+      background: rgba(217,83,79,0.08);
+      border: 1px solid rgba(217,83,79,0.14);
+      color: #b73f3c; font-size: 18px; font-weight: 900;
+      margin-bottom: 12px;
+    }
+    .sheet-summary {
+      font-size: 14px; line-height: 1.8;
+      color: #53616d; font-weight: 700;
+      white-space: pre-line; margin-bottom: 18px;
+    }
+    .sheet-grid { display: grid; gap: 12px; }
+    .sheet-card {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.3)),
+        repeating-linear-gradient(180deg, transparent 0 35px, rgba(92,148,216,0.26) 35px 36px),
+        #fbf7ea;
+      border: 1px solid rgba(82,96,109,0.1);
+      border-radius: 14px;
+      padding: 18px 16px;
+      box-shadow: 0 4px 16px rgba(103,88,57,0.08);
+    }
+    .sheet-card h4 {
+      font-size: 17px; font-weight: 900;
+      color: #2d3440; margin: 0 0 8px;
+    }
+    .sheet-card p {
+      font-size: 14px; line-height: 1.75;
+      color: #53616d; font-weight: 700; margin: 0;
+    }
+    .sheet-close-bar {
+      position: sticky; bottom: 0;
+      padding: 14px 20px calc(env(safe-area-inset-bottom, 8px) + 14px);
+      background: linear-gradient(transparent, #fbf7ea 30%);
+    }
+    .sheet-close-btn {
+      width: 100%; padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(45,52,64,0.12);
+      background: #2d3440; color: #fbf7ea;
+      font-size: 15px; font-weight: 900; cursor: pointer;
+    }
+
     @media (max-width: 720px) {
-      body { padding: 12px; }
+      html, body { overflow-x: hidden; }
+      body { padding: 10px; }
       .frame {
         min-height: auto;
-        border-width: 10px;
+        border-width: 8px;
+        border-radius: 22px;
+        overflow: hidden;
+        width: 100%;
+        max-width: 100%;
       }
       .screen {
         min-height: auto;
-        padding: 22px;
+        padding: 18px 16px;
+        overflow: hidden;
+        max-width: 100%;
+      }
+      #quiz-screen {
+        padding-bottom: 140px;
       }
       .hero { min-height: auto; }
-      .hero-header {
-        padding-right: 0;
-      }
+      .hero-header { padding-right: 0; }
+
+      /* Start: quick-links into card footer */
       .hero-quick-actions {
-        position: static;
-        width: 100%;
-        margin-top: 12px;
+        display: none;
       }
-      .hero > * {
-      width: 100%;
-      text-align: left;
-    }
-    .subject-card, .panel, .result-box { border-radius: 22px; }
-      .input-wrap { flex-direction: column; }
-      .button-row, .topbar-actions { width: 100%; }
-      .button-row button, .topbar-actions button, .input-wrap .primary { width: 100%; }
-      .result-box {
-        min-height: 280px;
-        padding: 20px 18px;
+      .subject-card-footer { display: flex !important; }
+      .hero > * { width: 100%; text-align: left; }
+
+      /* Cards */
+      .subject-card, .panel, .result-box { border-radius: 18px; }
+      .subject-card {
+        padding: 24px 20px 20px;
       }
+      .subject-card::after { display: none; }
+      .subject-card strong { font-size: 24px; margin-bottom: 8px; }
+      .subject-card span { font-size: 14px; }
+
+      /* Quiz topbar */
+      .topbar { gap: 10px; margin-bottom: 10px; max-width: 100%; }
+      .topbar > div:first-child { min-width: 0; overflow: hidden; }
+      .topbar h2 { font-size: 22px; }
+      .topbar p { font-size: 12px; word-break: keep-all; overflow-wrap: break-word; }
+      .badge { padding: 8px 12px; font-size: 13px; }
+
+      /* Quiz layout & panel */
+      .quiz-layout { max-width: 100%; overflow: hidden; }
+      .panel { max-width: 100%; overflow: hidden; padding: 22px 18px; }
+      .question-text { word-break: keep-all; overflow-wrap: break-word; }
+
+      /* Progress bar visible */
+      .progress-bar { display: block; }
+
+      /* Input */
+      .input-wrap { flex-direction: column; max-width: 100%; }
+      .input-wrap .primary { display: none; }
+      .answer-input { font-size: 16px; padding: 4px 14px; height: 40px; border-radius: 12px; width: 100%; max-width: 100%; }
+
+      /* Result box */
+      .result-box { min-height: auto; padding: 20px 18px; border-radius: 18px; max-width: 100%; overflow: hidden; }
+      .result-title { font-size: 20px; }
+      .result-text { font-size: 15px; }
+      .button-row { width: 100%; }
+      .button-row button { width: 100%; }
+      .topbar-actions { width: auto; }
+      .topbar-actions button { width: auto; }
+
+      /* Quiz nav: fixed bottom bar */
       .quiz-nav {
-        left: 22px;
-        right: 22px;
-        bottom: 22px;
-        gap: 12px;
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        padding: 0 16px calc(env(safe-area-inset-bottom, 8px) + 12px);
+        background: linear-gradient(180deg, transparent, rgba(22,42,32,0.97) 18%);
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: auto;
       }
+      .mobile-submit-bar { display: block !important; }
       .quiz-nav .nav-button {
         min-width: 0;
-        width: calc(50% - 6px);
+        width: calc(50% - 5px);
+        border-radius: 14px;
+        padding: 14px 10px;
       }
+      .nav-row-mobile {
+        display: flex !important;
+        gap: 10px;
+      }
+
+      /* Finish button compact */
+      #finish-button {
+        padding: 8px 14px;
+        font-size: 13px;
+      }
+
+      /* Lead text */
+      .lead { font-size: 14px; margin-bottom: 20px; }
+      h1 { font-size: 28px; }
     }
+
+    /* Hidden by default, shown on mobile */
+    .subject-card-footer { display: none; }
+    .mobile-submit-bar { display: none; }
+    .nav-row-mobile { display: none; }
   </style>
 </head>
 <body>
@@ -494,10 +671,16 @@
           <button class="subject-card" data-group="first" type="button">
             <strong>1~6과목</strong>
             <span>소프트웨어 설계, 데이터 모델링, UI, UML, 보안, 인터페이스 등 기초 이론 중심</span>
+            <span class="subject-card-footer" style="display:none;margin-top:14px;gap:8px;">
+              <span class="mobile-quick-link" data-answer-group="first" style="flex:1;padding:12px 10px;border-radius:12px;background:rgba(243,209,124,0.06);border:1px solid rgba(243,209,124,0.14);color:#f3d17c;font-size:13px;font-weight:800;text-align:center;cursor:pointer;">두음 보기</span>
+            </span>
           </button>
           <button class="subject-card" data-group="second" type="button">
             <strong>7~12과목</strong>
             <span>트랜잭션, SQL, 테스트, 운영체제, 네트워크, 보안, 클라우드 등 실무 빈출 주제</span>
+            <span class="subject-card-footer" style="display:none;margin-top:14px;gap:8px;">
+              <span class="mobile-quick-link" data-answer-group="second" style="flex:1;padding:12px 10px;border-radius:12px;background:rgba(243,209,124,0.06);border:1px solid rgba(243,209,124,0.14);color:#f3d17c;font-size:13px;font-weight:800;text-align:center;cursor:pointer;">두음 보기</span>
+            </span>
           </button>
         </div>
       </div>
@@ -515,6 +698,7 @@
         </div>
       </div>
 
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
       <div class="quiz-layout">
         <div class="panel">
           <p class="question-label">Question</p>
@@ -535,10 +719,22 @@
       </div>
 
       <div class="quiz-nav">
-        <button id="prev-button" class="secondary nav-button" type="button">이전 문제</button>
-        <button id="next-button" class="secondary nav-button" type="button">다음 문제</button>
+        <button id="mobile-submit-button" class="mobile-submit-bar" type="button" style="width:100%;padding:16px;border-radius:16px;border:none;font-size:17px;font-weight:900;cursor:pointer;background:linear-gradient(180deg,#f2d47d 0%,#d2a94d 100%);color:#2d2210;box-shadow:0 8px 20px rgba(160,120,40,0.25);">정답 확인</button>
+        <div class="nav-row-mobile">
+          <button id="prev-button" class="secondary nav-button" type="button">이전 문제</button>
+          <button id="next-button" class="secondary nav-button" type="button">다음 문제</button>
+        </div>
       </div>
     </section>
+  </div>
+
+  <div id="bottom-sheet-overlay" class="bottom-sheet-overlay"></div>
+  <div id="bottom-sheet" class="bottom-sheet">
+    <div class="sheet-handle"><span></span></div>
+    <div class="sheet-content" id="sheet-content"></div>
+    <div class="sheet-close-bar">
+      <button class="sheet-close-btn" id="sheet-close-btn" type="button">닫기</button>
+    </div>
   </div>
 
   <script>
@@ -757,6 +953,7 @@ const termDetails = {
     let currentOrder = [];
     let sessionResults = [];
     let summaryWindowRef = null;
+    const isMobile = window.matchMedia("(max-width: 720px)").matches;
     const params = new URLSearchParams(window.location.search);
     const initialGroupKey = params.get("group");
     const initialView = params.get("view");
@@ -822,8 +1019,16 @@ const termDetails = {
     }
 
     function showNextState() {
-      submitButton.textContent = currentIndex === currentOrder.length - 1 ? "결과 보기" : "다음";
+      const label = currentIndex === currentOrder.length - 1 ? "결과 보기" : "다음";
+      submitButton.textContent = label;
       submitButton.classList.add("is-next");
+      const mobileSubmit = document.getElementById("mobile-submit-button");
+      if (mobileSubmit) {
+        mobileSubmit.textContent = label;
+        mobileSubmit.style.background = "linear-gradient(180deg, #d9f29b 0%, #9cc458 100%)";
+        mobileSubmit.style.color = "#20300f";
+        mobileSubmit.classList.add("is-next");
+      }
     }
 
     function goToNextStep() {
@@ -855,6 +1060,17 @@ const termDetails = {
       prevButton.disabled = currentIndex === 0;
       resetResult();
       answerInput.focus();
+      const progressFill = document.getElementById("progress-fill");
+      if (progressFill) {
+        progressFill.style.width = `${((currentIndex + 1) / items.length) * 100}%`;
+      }
+      const mobileSubmit = document.getElementById("mobile-submit-button");
+      if (mobileSubmit) {
+        mobileSubmit.textContent = "정답 확인";
+        mobileSubmit.style.background = "linear-gradient(180deg, #f2d47d 0%, #d2a94d 100%)";
+        mobileSubmit.style.color = "#2d2210";
+        mobileSubmit.classList.remove("is-next");
+      }
     }
     function showQuiz(groupKey) {
       currentGroupKey = groupKey;
@@ -891,9 +1107,14 @@ const termDetails = {
       const retryHref = `${baseHref}?group=${encodeURIComponent(groupKey)}`;
       const homeHref = baseHref;
       const retryLabel = answerSheetEntry === "menu" ? "문제 풀기" : "다시 풀기";
-      const cards = items.map((entry, index) => {
-        return `<article class="item"><div class="meta"><span class="order">${index + 1}번 문제</span><span class="status answer"></span></div><h3>${escapeHtml(entry.question)}</h3><p>정답 두음: ${escapeHtml(entry.answer)}\n설명: ${escapeHtml(entry.description)}</p></article>`;
-      }).join("");
+      const isMobileNow = window.matchMedia("(max-width: 720px)").matches;
+      const cards = isMobileNow
+        ? items.map((entry, index) => {
+            return `<article class="accordion-item" onclick="this.classList.toggle('open')"><div class="accordion-header"><div class="ah-left"><span class="order">${index + 1}번</span><span class="ah-question">${escapeHtml(entry.question)}</span></div><span class="ah-answer">${escapeHtml(entry.answer)}</span><span class="ah-chevron">&#9660;</span></div><div class="accordion-body"><p>설명: ${escapeHtml(entry.description)}</p></div></article>`;
+          }).join("")
+        : items.map((entry, index) => {
+            return `<article class="item"><div class="meta"><span class="order">${index + 1}번 문제</span><span class="status answer"></span></div><h3>${escapeHtml(entry.question)}</h3><p>정답 두음: ${escapeHtml(entry.answer)}\n설명: ${escapeHtml(entry.description)}</p></article>`;
+          }).join("");
       document.title = `${title} 전체 답안지`;
       document.head.innerHTML = `
   <meta charset="UTF-8">
@@ -913,7 +1134,7 @@ const termDetails = {
   <meta property="og:type" content="website">
   <meta property="og:locale" content="ko_KR">
   <title>${escapeHtml(title)} 전체 답안지</title>
-  <style>:root{--board:#213d30;--chalk:#eef4e7;--chalk-soft:rgba(238,244,231,.72);--frame:#765536;--line:rgba(238,244,231,.14);--accent:#f3d17c;--answer:#d7efff;--answer-bg:rgba(44,87,118,.86);}*{box-sizing:border-box;}body{margin:0;min-height:100vh;font-family:"Pretendard","Noto Sans KR",sans-serif;color:var(--chalk);background:linear-gradient(180deg,#b58a5a 0%,#8d653e 18%,#6b4a2d 100%);padding:18px;}.wrap{max-width:1280px;min-height:calc(100vh - 36px);margin:0 auto;border:14px solid var(--frame);border-radius:28px;background:linear-gradient(180deg,#234131 0%,#1d372a 100%);box-shadow:inset 0 0 0 3px rgba(76,50,28,.55),0 26px 56px rgba(8,20,15,.35);padding:26px;position:relative;overflow:hidden;}.wrap::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 2px,transparent 2px 56px);pointer-events:none;}.hero{position:relative;z-index:1;margin-bottom:18px;display:flex;justify-content:space-between;gap:18px;align-items:flex-start;}.hero-copy{flex:1;min-width:0;}.hero h1{margin:0 0 8px;font-size:clamp(30px,4vw,46px);letter-spacing:-.05em;color:var(--accent);}.hero p{margin:0;color:var(--chalk-soft);font-size:17px;line-height:1.8;}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}.hero-actions button{border:1px solid rgba(243,209,124,.2);border-radius:999px;padding:12px 16px;background:rgba(243,209,124,.08);color:var(--accent);font-size:15px;font-weight:900;cursor:pointer;}.hero-actions button.active{background:linear-gradient(180deg,#f2d47d 0%,#d2a94d 100%);color:#2d2210;}.hero-actions button.answer-sheet{background:rgba(237,245,233,.08);color:var(--chalk);border-color:rgba(237,245,233,.18);}.list{position:relative;z-index:1;display:grid;gap:14px;}.item{border-radius:22px;border:1px solid var(--line);padding:20px 22px;background:linear-gradient(180deg,rgba(76,128,170,.18),var(--answer-bg));}.meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:14px;font-weight:800;}.order{color:var(--accent);}.status.answer{color:var(--answer);}.item h3{margin:0 0 10px;font-size:25px;font-weight:900;}.item p{margin:0;white-space:pre-line;font-size:17px;line-height:1.85;color:#fffef8;font-weight:700;}@media (max-width:720px){body{padding:10px;}.wrap{border-width:10px;padding:18px;min-height:calc(100vh - 20px);}.hero{flex-direction:column;}.hero-actions{width:100%;}.hero-actions button{width:100%;}}</style>`;
+  <style>:root{--board:#213d30;--chalk:#eef4e7;--chalk-soft:rgba(238,244,231,.72);--frame:#765536;--line:rgba(238,244,231,.14);--accent:#f3d17c;--answer:#d7efff;--answer-bg:rgba(44,87,118,.86);}*{box-sizing:border-box;}body{margin:0;min-height:100vh;font-family:"Pretendard","Noto Sans KR",sans-serif;color:var(--chalk);background:linear-gradient(180deg,#b58a5a 0%,#8d653e 18%,#6b4a2d 100%);padding:18px;}.wrap{max-width:1280px;min-height:calc(100vh - 36px);margin:0 auto;border:14px solid var(--frame);border-radius:28px;background:linear-gradient(180deg,#234131 0%,#1d372a 100%);box-shadow:inset 0 0 0 3px rgba(76,50,28,.55),0 26px 56px rgba(8,20,15,.35);padding:26px;position:relative;overflow:hidden;}.wrap::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 2px,transparent 2px 56px);pointer-events:none;}.hero{position:relative;z-index:1;margin-bottom:18px;display:flex;justify-content:space-between;gap:18px;align-items:flex-start;}.hero-copy{flex:1;min-width:0;}.hero h1{margin:0 0 8px;font-size:clamp(30px,4vw,46px);letter-spacing:-.05em;color:var(--accent);}.hero p{margin:0;color:var(--chalk-soft);font-size:17px;line-height:1.8;}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}.hero-actions button{border:1px solid rgba(243,209,124,.2);border-radius:999px;padding:12px 16px;background:rgba(243,209,124,.08);color:var(--accent);font-size:15px;font-weight:900;cursor:pointer;}.hero-actions button.active{background:linear-gradient(180deg,#f2d47d 0%,#d2a94d 100%);color:#2d2210;}.hero-actions button.answer-sheet{background:rgba(237,245,233,.08);color:var(--chalk);border-color:rgba(237,245,233,.18);}.list{position:relative;z-index:1;display:grid;gap:14px;}.item{border-radius:22px;border:1px solid var(--line);padding:20px 22px;background:linear-gradient(180deg,rgba(76,128,170,.18),var(--answer-bg));}.meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:14px;font-weight:800;}.order{color:var(--accent);}.status.answer{color:var(--answer);}.item h3{margin:0 0 10px;font-size:25px;font-weight:900;}.item p{margin:0;white-space:pre-line;font-size:17px;line-height:1.85;color:#fffef8;font-weight:700;}@media (max-width:720px){body{padding:10px;}.wrap{border-width:8px;border-radius:22px;padding:18px;min-height:calc(100vh - 20px);}.hero{flex-direction:column;}.hero-actions{width:100%;display:flex;gap:8px;}.hero-actions button{flex:1;width:auto;border-radius:14px;padding:12px 10px;font-size:14px;}.accordion-item{border-radius:16px;border:1px solid var(--line);overflow:hidden;background:linear-gradient(180deg,rgba(76,128,170,.18),var(--answer-bg));margin-bottom:0;}.accordion-header{display:flex;align-items:center;padding:14px 16px;cursor:pointer;gap:10px;}.ah-left{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;}.ah-left .order{font-size:11px;font-weight:800;color:var(--accent);}.ah-question{font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.ah-answer{flex-shrink:0;padding:6px 12px;border-radius:10px;background:rgba(215,239,255,.12);border:1px solid rgba(215,239,255,.15);color:var(--answer);font-size:15px;font-weight:900;}.ah-chevron{flex-shrink:0;font-size:12px;color:var(--chalk-soft);transition:transform .2s;}.accordion-item.open .ah-chevron{transform:rotate(180deg);}.accordion-body{display:none;padding:0 16px 14px;}.accordion-item.open .accordion-body{display:block;}.accordion-body p{font-size:14px;line-height:1.8;color:#fffef8;font-weight:700;white-space:pre-line;margin:0;}}</style>`;
       document.body.innerHTML = `
   <div class="wrap">
     <section class="hero">
@@ -943,9 +1164,33 @@ const termDetails = {
       return item.description.split("/").map((part) => part.trim()).filter(Boolean).map((term) => ({ term, explanation: explainTerm(term, item) }));
     }
 
+    function openBottomSheet(item, details) {
+      const sheetContent = document.getElementById("sheet-content");
+      const cards = details.map((d) => `<article class="sheet-card"><h4>${escapeHtml(d.term)}</h4><p>${escapeHtml(d.explanation)}</p></article>`).join("");
+      sheetContent.innerHTML = `
+        <div class="sheet-eyebrow">Detail Note</div>
+        <h2 class="sheet-title">${escapeHtml(item.question)}</h2>
+        <div class="sheet-answer">두음: ${escapeHtml(item.answer)}</div>
+        <p class="sheet-summary">원문 항목: ${escapeHtml(item.description)}\n각 항목의 핵심 의미를 아래에 정리했습니다.</p>
+        <div class="sheet-grid">${cards}</div>`;
+      document.getElementById("bottom-sheet-overlay").classList.add("open");
+      document.getElementById("bottom-sheet").classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeBottomSheet() {
+      document.getElementById("bottom-sheet-overlay").classList.remove("open");
+      document.getElementById("bottom-sheet").classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
     function openDetailWindow() {
       const item = getCurrentItem();
       const details = buildDetailItems(item);
+      if (isMobile) {
+        openBottomSheet(item, details);
+        return;
+      }
       const width = Math.min(1080, Math.floor(window.screen.availWidth * 0.86));
       const height = Math.max(720, window.screen.availHeight - 40);
       const left = Math.max(0, Math.floor((window.screen.availWidth - width) / 2));
@@ -1041,7 +1286,7 @@ const termDetails = {
   <meta property="og:type" content="website">
   <meta property="og:locale" content="ko_KR">
   <title>${escapeHtml(groups[currentGroupKey].title)} 풀이 결과</title>
-  <style>:root{--board:#213d30;--chalk:#eef4e7;--chalk-soft:rgba(238,244,231,.72);--frame:#765536;--card:rgba(15,45,32,.88);--line:rgba(238,244,231,.14);--accent:#f3d17c;--wrong:#ffcfc8;--wrong-bg:rgba(126,54,46,.88);--correct:#d5ffe0;--correct-bg:rgba(49,107,73,.86);--panel:rgba(255,255,255,.05);--answer:#d7efff;--answer-bg:rgba(44,87,118,.86);}*{box-sizing:border-box;}body{margin:0;min-height:100vh;font-family:"Pretendard","Noto Sans KR",sans-serif;color:var(--chalk);background:linear-gradient(180deg,#b58a5a 0%,#8d653e 18%,#6b4a2d 100%);padding:18px;}.wrap{max-width:1280px;min-height:calc(100vh - 36px);margin:0 auto;border:14px solid var(--frame);border-radius:28px;background:linear-gradient(180deg,#234131 0%,#1d372a 100%);box-shadow:inset 0 0 0 3px rgba(76,50,28,.55),0 26px 56px rgba(8,20,15,.35);padding:26px;position:relative;overflow:hidden;}.wrap::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 2px,transparent 2px 56px);pointer-events:none;}.hero{position:relative;z-index:1;margin-bottom:18px;display:flex;justify-content:space-between;gap:18px;align-items:flex-start;}.hero-copy{flex:1;min-width:0;}.hero h1{margin:0 0 8px;font-size:clamp(30px,4vw,46px);letter-spacing:-.05em;color:var(--accent);}.hero p{margin:0;color:var(--chalk-soft);font-size:17px;line-height:1.8;}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}.hero-actions button,.toolbar button{border:1px solid rgba(243,209,124,.2);border-radius:999px;padding:12px 16px;background:rgba(243,209,124,.08);color:var(--accent);font-size:15px;font-weight:900;cursor:pointer;}.hero-actions button.active,.toolbar button.active{background:linear-gradient(180deg,#f2d47d 0%,#d2a94d 100%);color:#2d2210;}.hero-actions button.answer-sheet,.toolbar button.answer-sheet{background:rgba(237,245,233,.08);color:var(--chalk);border-color:rgba(237,245,233,.18);}.toolbar{position:relative;z-index:1;display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}.list{position:relative;z-index:1;display:grid;gap:14px;}.item{border-radius:22px;border:1px solid var(--line);padding:20px 22px;background:var(--card);}.item.correct{background:linear-gradient(180deg,rgba(88,160,112,.22),var(--correct-bg));}.item.wrong{background:linear-gradient(180deg,rgba(176,91,75,.2),var(--wrong-bg));}.item.answer{background:linear-gradient(180deg,rgba(76,128,170,.18),var(--answer-bg));}.meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:14px;font-weight:800;}.order{color:var(--accent);}.status.correct{color:var(--correct);}.status.wrong{color:var(--wrong);}.status.answer{color:var(--answer);}.item h3,.empty-card h3{margin:0 0 10px;font-size:25px;font-weight:900;}.item p,.empty-card p{margin:0;white-space:pre-line;font-size:17px;line-height:1.85;color:#fffef8;font-weight:700;}.empty-card{border-radius:22px;border:1px solid var(--line);padding:24px;background:linear-gradient(180deg,rgba(255,255,255,.04),var(--panel));}.toolbar .answer-sheet.is-active{background:linear-gradient(180deg,#d8ecff 0%,#a8c9ef 100%);color:#19324d;border-color:rgba(168,201,239,.45);}@media (max-width:720px){body{padding:10px;}.wrap{border-width:10px;padding:18px;min-height:calc(100vh - 20px);}.hero{flex-direction:column;}.hero-actions{width:100%;}.hero-actions button,.toolbar button{width:100%;}.toolbar{flex-direction:column;}}</style>
+  <style>:root{--board:#213d30;--chalk:#eef4e7;--chalk-soft:rgba(238,244,231,.72);--frame:#765536;--card:rgba(15,45,32,.88);--line:rgba(238,244,231,.14);--accent:#f3d17c;--wrong:#ffcfc8;--wrong-bg:rgba(126,54,46,.88);--correct:#d5ffe0;--correct-bg:rgba(49,107,73,.86);--panel:rgba(255,255,255,.05);--answer:#d7efff;--answer-bg:rgba(44,87,118,.86);}*{box-sizing:border-box;}body{margin:0;min-height:100vh;font-family:"Pretendard","Noto Sans KR",sans-serif;color:var(--chalk);background:linear-gradient(180deg,#b58a5a 0%,#8d653e 18%,#6b4a2d 100%);padding:18px;}.wrap{max-width:1280px;min-height:calc(100vh - 36px);margin:0 auto;border:14px solid var(--frame);border-radius:28px;background:linear-gradient(180deg,#234131 0%,#1d372a 100%);box-shadow:inset 0 0 0 3px rgba(76,50,28,.55),0 26px 56px rgba(8,20,15,.35);padding:26px;position:relative;overflow:hidden;}.wrap::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 2px,transparent 2px 56px);pointer-events:none;}.hero{position:relative;z-index:1;margin-bottom:18px;display:flex;justify-content:space-between;gap:18px;align-items:flex-start;}.hero-copy{flex:1;min-width:0;}.hero h1{margin:0 0 8px;font-size:clamp(30px,4vw,46px);letter-spacing:-.05em;color:var(--accent);}.hero p{margin:0;color:var(--chalk-soft);font-size:17px;line-height:1.8;}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}.hero-actions button,.toolbar button{border:1px solid rgba(243,209,124,.2);border-radius:999px;padding:12px 16px;background:rgba(243,209,124,.08);color:var(--accent);font-size:15px;font-weight:900;cursor:pointer;}.hero-actions button.active,.toolbar button.active{background:linear-gradient(180deg,#f2d47d 0%,#d2a94d 100%);color:#2d2210;}.hero-actions button.answer-sheet,.toolbar button.answer-sheet{background:rgba(237,245,233,.08);color:var(--chalk);border-color:rgba(237,245,233,.18);}.toolbar{position:relative;z-index:1;display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}.list{position:relative;z-index:1;display:grid;gap:14px;}.item{border-radius:22px;border:1px solid var(--line);padding:20px 22px;background:var(--card);}.item.correct{background:linear-gradient(180deg,rgba(88,160,112,.22),var(--correct-bg));}.item.wrong{background:linear-gradient(180deg,rgba(176,91,75,.2),var(--wrong-bg));}.item.answer{background:linear-gradient(180deg,rgba(76,128,170,.18),var(--answer-bg));}.meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:14px;font-weight:800;}.order{color:var(--accent);}.status.correct{color:var(--correct);}.status.wrong{color:var(--wrong);}.status.answer{color:var(--answer);}.item h3,.empty-card h3{margin:0 0 10px;font-size:25px;font-weight:900;}.item p,.empty-card p{margin:0;white-space:pre-line;font-size:17px;line-height:1.85;color:#fffef8;font-weight:700;}.empty-card{border-radius:22px;border:1px solid var(--line);padding:24px;background:linear-gradient(180deg,rgba(255,255,255,.04),var(--panel));}.toolbar .answer-sheet.is-active{background:linear-gradient(180deg,#d8ecff 0%,#a8c9ef 100%);color:#19324d;border-color:rgba(168,201,239,.45);}.stats-bar{position:relative;z-index:1;display:none;gap:10px;margin-bottom:16px;}.stat-card{flex:1;padding:14px 12px;border-radius:14px;text-align:center;border:1px solid var(--line);}.stat-card.total{background:rgba(255,255,255,.04);}.stat-card.right{background:rgba(49,107,73,.2);border-color:rgba(221,255,232,.15);}.stat-card.fail{background:rgba(126,54,46,.2);border-color:rgba(255,228,220,.12);}.stat-number{font-size:28px;font-weight:900;line-height:1;margin-bottom:4px;}.stat-card.total .stat-number{color:var(--chalk);}.stat-card.right .stat-number{color:var(--correct);}.stat-card.fail .stat-number{color:var(--wrong);}.stat-label{font-size:12px;font-weight:700;color:var(--chalk-soft);}@media (max-width:720px){body{padding:10px;}.wrap{border-width:8px;border-radius:22px;padding:18px;min-height:calc(100vh - 20px);}.hero{flex-direction:column;}.hero h1{font-size:24px;}.hero p{font-size:13px;}.hero-actions{width:100%;display:flex;gap:8px;}.hero-actions button{flex:1;width:auto;border-radius:14px;padding:12px 10px;font-size:14px;}.stats-bar{display:flex;}.toolbar{flex-direction:row;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;gap:8px;padding-bottom:4px;scrollbar-width:none;}.toolbar::-webkit-scrollbar{display:none;}.toolbar button{width:auto;flex-shrink:0;padding:10px 16px;font-size:13px;white-space:nowrap;}.item{border-radius:16px;padding:16px;}.item h3{font-size:18px;}.item p{font-size:14px;}}</style>
 </head>
 <body>
   <div class="wrap">
@@ -1055,6 +1300,11 @@ const termDetails = {
         <button class="answer-sheet" type="button" onclick="window.location.replace('${homeHref}')">과목 선택</button>
       </div>
     </section>
+    <div class="stats-bar">
+      <div class="stat-card total"><div class="stat-number">${respondedItems.length}</div><div class="stat-label">전체</div></div>
+      <div class="stat-card right"><div class="stat-number">${respondedItems.filter(e => e.status === '정답').length}</div><div class="stat-label">정답</div></div>
+      <div class="stat-card fail"><div class="stat-number">${respondedItems.filter(e => e.status === '오답').length}</div><div class="stat-label">오답</div></div>
+    </div>
     <section class="toolbar">
       <button class="sort-button active" data-sort="sequence" type="button" onclick="renderSummary('sequence')">문제 풀이 순서대로 정렬</button>
       <button class="sort-button" data-sort="wrong" type="button" onclick="renderSummary('wrong')">오답 우선순위 정렬</button>
@@ -1104,8 +1354,19 @@ const termDetails = {
       }
     }
 
-    document.querySelectorAll("[data-group]").forEach((button) => button.addEventListener("click", () => showQuiz(button.dataset.group)));
+    document.querySelectorAll("[data-group]").forEach((button) => {
+      button.addEventListener("click", (e) => {
+        if (e.target.classList.contains("mobile-quick-link")) return;
+        showQuiz(button.dataset.group);
+      });
+    });
     document.querySelectorAll("[data-answer-group]").forEach((button) => button.addEventListener("click", () => openGroupAnswerSheetWindow(button.dataset.answerGroup)));
+    document.querySelectorAll(".mobile-quick-link").forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openGroupAnswerSheetWindow(link.dataset.answerGroup);
+      });
+    });
     submitButton.addEventListener("click", () => {
       if (!resultBox.classList.contains("hidden")) {
         goToNextStep();
@@ -1113,8 +1374,20 @@ const termDetails = {
       }
       checkAnswer();
     });
+    const mobileSubmitButton = document.getElementById("mobile-submit-button");
+    if (mobileSubmitButton) {
+      mobileSubmitButton.addEventListener("click", () => {
+        if (!resultBox.classList.contains("hidden")) {
+          goToNextStep();
+          return;
+        }
+        checkAnswer();
+      });
+    }
     detailButton.addEventListener("click", openDetailWindow);
     finishButton.addEventListener("click", openSummaryWindow);
+    document.getElementById("sheet-close-btn").addEventListener("click", closeBottomSheet);
+    document.getElementById("bottom-sheet-overlay").addEventListener("click", closeBottomSheet);
     answerInput.addEventListener("animationend", () => {
       answerInput.classList.remove("attention");
     });
