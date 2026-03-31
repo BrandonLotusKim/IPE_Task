@@ -107,6 +107,41 @@
       text-align: left;
       gap: 22px;
     }
+    .hero-header {
+      width: 100%;
+      position: relative;
+      padding-right: 170px;
+    }
+    .hero-header > div:first-child {
+      min-width: 0;
+      display: grid;
+      gap: 8px;
+    }
+    .hero-quick-actions {
+      position: absolute;
+      top: 0;
+      right: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 150px;
+    }
+    .hero-quick-actions .quick-link {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.35;
+      white-space: normal;
+      border-radius: 20px;
+      padding: 20px 12px;
+      background: rgba(243, 209, 124, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(243, 209, 124, 0.18);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .hero-quick-actions .quick-link:hover {
+      border-color: rgba(243, 209, 124, 0.34);
+    }
     .eyebrow {
       font-size: 12px;
       font-weight: 900;
@@ -407,6 +442,14 @@
         padding: 22px;
       }
       .hero { min-height: auto; }
+      .hero-header {
+        padding-right: 0;
+      }
+      .hero-quick-actions {
+        position: static;
+        width: 100%;
+        margin-top: 12px;
+      }
       .hero > * {
       width: 100%;
       text-align: left;
@@ -436,9 +479,15 @@
   <div class="frame">
     <section id="start-screen" class="screen start-screen">
       <div class="hero">
-        <div>
-          <div class="eyebrow">Mnemonic Drill</div>
-          <h1>정보처리기사 두음 암기 페이지</h1>
+        <div class="hero-header">
+          <div>
+            <div class="eyebrow">Mnemonic Drill</div>
+            <h1>정보처리기사 두음 암기 페이지</h1>
+          </div>
+          <div class="hero-quick-actions">
+            <button class="quick-link" data-answer-group="first" type="button">1~6과목<br>두음 보기</button>
+            <button class="quick-link" data-answer-group="second" type="button">7~12과목<br>두음 보기</button>
+          </div>
         </div>
         <p class="lead">과목군을 선택하고 문제를 본 뒤 두음을 입력하세요. 칠판 위에서 문제를 풀고, 노트 형식으로 상세 설명과 풀이 결과를 정리해 볼 수 있습니다.</p>
         <div class="subject-grid">
@@ -481,7 +530,6 @@
           <p id="result-text" class="result-text"></p>
           <div class="button-row result-actions">
             <button id="detail-button" class="ghost" type="button">상세한 설명</button>
-            <button id="restart-button" class="ghost" type="button">과목 다시 선택</button>
           </div>
         </div>
       </div>
@@ -712,6 +760,7 @@ const termDetails = {
     const params = new URLSearchParams(window.location.search);
     const initialGroupKey = params.get("group");
     const initialView = params.get("view");
+    const answerSheetEntry = params.get("entry");
     let initialPageHtml = "";
     window.addEventListener("load", () => {
       initialPageHtml = document.documentElement.outerHTML;
@@ -731,7 +780,6 @@ const termDetails = {
     const detailButton = document.getElementById("detail-button");
     const prevButton = document.getElementById("prev-button");
     const nextButton = document.getElementById("next-button");
-    const restartButton = document.getElementById("restart-button");
     const finishButton = document.getElementById("finish-button");
 
     function escapeHtml(value) {
@@ -829,6 +877,12 @@ const termDetails = {
       resetResult();
     }
 
+    function openGroupAnswerSheetWindow(groupKey) {
+      if (!groups[groupKey]) return;
+      const baseHref = window.location.href.split("?")[0];
+      const url = `${baseHref}?view=answer-sheet&group=${encodeURIComponent(groupKey)}&entry=menu`;
+      window.location.assign(url);
+    }
     function renderAnswerSheetPage(groupKey) {
       if (!groups[groupKey]) return;
       const items = groups[groupKey].items;
@@ -836,6 +890,7 @@ const termDetails = {
       const baseHref = window.location.href.split("?")[0];
       const retryHref = `${baseHref}?group=${encodeURIComponent(groupKey)}`;
       const homeHref = baseHref;
+      const retryLabel = answerSheetEntry === "menu" ? "문제 풀기" : "다시 풀기";
       const cards = items.map((entry, index) => {
         return `<article class="item"><div class="meta"><span class="order">${index + 1}번 문제</span><span class="status answer"></span></div><h3>${escapeHtml(entry.question)}</h3><p>정답 두음: ${escapeHtml(entry.answer)}\n설명: ${escapeHtml(entry.description)}</p></article>`;
       }).join("");
@@ -867,7 +922,7 @@ const termDetails = {
         <p>이번 회차의 모든 문제 정답과 설명을 한 번에 볼 수 있습니다.</p>
       </div>
       <div class="hero-actions">
-        <button class="active" type="button" onclick="window.location.replace('${retryHref}')">다시 풀기</button>
+        <button class="active" type="button" onclick="window.location.replace('${retryHref}')">${retryLabel}</button>
         <button class="answer-sheet" type="button" onclick="window.location.replace('${homeHref}')">과목 선택</button>
       </div>
     </section>
@@ -1050,6 +1105,7 @@ const termDetails = {
     }
 
     document.querySelectorAll("[data-group]").forEach((button) => button.addEventListener("click", () => showQuiz(button.dataset.group)));
+    document.querySelectorAll("[data-answer-group]").forEach((button) => button.addEventListener("click", () => openGroupAnswerSheetWindow(button.dataset.answerGroup)));
     submitButton.addEventListener("click", () => {
       if (!resultBox.classList.contains("hidden")) {
         goToNextStep();
@@ -1059,7 +1115,6 @@ const termDetails = {
     });
     detailButton.addEventListener("click", openDetailWindow);
     finishButton.addEventListener("click", openSummaryWindow);
-    restartButton.addEventListener("click", showStart);
     answerInput.addEventListener("animationend", () => {
       answerInput.classList.remove("attention");
     });
